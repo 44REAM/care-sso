@@ -1,42 +1,237 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
+/* App.css for CARE Pension Calculator */
+
+/* Global styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Prompt', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+body {
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+/* Main container */
+.bg-gray-50 {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 2rem;
+  max-width: 1200px;
+  margin: 2rem auto;
+}
+
+/* Header styling */
+h1.text-2xl {
+  color: #ff6b19;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  border-bottom: 2px solid #ff6b19;
+  padding-bottom: 0.75rem;
+}
+
+h2.text-xl {
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  border-left: 4px solid #ff6b19;
+  padding-left: 0.75rem;
+}
+
+/* Form elements */
+input[type="number"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+input[type="number"]:focus {
+  border-color: #ff6b19;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 107, 25, 0.2);
+}
+
+label {
+  font-weight: 500;
+  color: #555;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* Table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+thead {
+  background-color: #ff6b19;
+  color: white;
+}
+
+th, td {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+tbody tr:hover {
+  background-color: #f0f0f0;
+}
+
+/* Button styling */
+button {
+  background-color: #ff6b19;
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+button:hover {
+  background-color: #e85c0c;
+}
+
+button.text-blue-600 {
+  background-color: transparent;
+  color: #ff6b19;
+  text-transform: none;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: auto;
+  font-weight: 500;
+}
+
+button.text-blue-600:hover {
+  color: #e85c0c;
+  background-color: transparent;
+}
+
+/* Result boxes */
+.bg-blue-50, .bg-green-50, .bg-purple-50 {
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.bg-blue-50 {
+  background-color: #f0f7ff;
+  border: 1px solid #cce5ff;
+}
+
+.bg-green-50 {
+  background-color: #f0fff4;
+  border: 1px solid #c6f6d5;
+}
+
+.bg-purple-50 {
+  background-color: #faf5ff;
+  border: 1px solid #e9d8fd;
+}
+
+.bg-blue-50:hover, .bg-green-50:hover, .bg-purple-50:hover {
+  transform: translateY(-3px);
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.text-blue-800 {
+  color: #ff6b19;
+}
+
+.text-green-800 {
+  color: #25a244;
+}
+
+.text-purple-800 {
+  color: #9061f9;
+}
+
+/* Error message */
+.bg-red-100 {
+  background-color: #fff5f5;
+  border: 1px solid #feb2b2;
+  color: #c53030;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+/* Responsive grid */
+.grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.grid-cols-1 {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .md\:grid-cols-2 {
+    grid-template-columns: 1fr 1fr;
   }
-  to {
-    transform: rotate(360deg);
+  
+  .md\:grid-cols-3 {
+    grid-template-columns: 1fr 1fr 1fr;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* Additional helper classes */
+.mb-2 {
+  margin-bottom: 0.5rem;
 }
 
-.card {
-  padding: 2em;
+.mb-3 {
+  margin-bottom: 0.75rem;
 }
 
-.read-the-docs {
-  color: #888;
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.mt-6 {
+  margin-top: 1.5rem;
+}
+
+.overflow-x-auto {
+  overflow-x: auto;
+}
+
+/* Loading state */
+.loading {
+  text-align: center;
+  padding: 2rem;
+  font-weight: 500;
+  color: #666;
 }
