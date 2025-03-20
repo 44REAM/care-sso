@@ -358,9 +358,9 @@ const CAREPensionCalculator: React.FC = () => {
             <thead className="bg-gray-100">
               <tr>
                 <th className="p-2 border">ปี</th>
-                <th className="p-2 border">เงินค่าจ้าง (P[t])</th>
+                <th className="p-2 border">เงินค่าจ้างเฉลี่ย (P[t])</th>
                 <th className="p-2 border">จำนวนเดือน (w[t])</th>
-                <th className="p-2 border">ค่า i[t]</th>
+                <th className="p-2 border">ค่า index (i[t])</th>
               </tr>
             </thead>
             <tbody>
@@ -435,7 +435,7 @@ const CAREPensionCalculator: React.FC = () => {
         <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <h3 className="text-lg font-medium text-gray-700 mb-2">AdjustedAmount(T)</h3>
+              <h3 className="text-lg font-medium text-gray-700 mb-2">ค่าจ่างเฉลี่ย</h3>
               <p className="text-2xl font-bold text-blue-800">{result.finalAdjustedAmount.toFixed(2)}</p>
             </div>
             <div className="bg-green-50 p-4 rounded-lg border border-green-200">
@@ -463,8 +463,8 @@ const CAREPensionCalculator: React.FC = () => {
                     <th className="p-2 border">ปี</th>
                     <th className="p-2 border">ReValue</th>
                     <th className="p-2 border">AdjustedAmount</th>
-                    <th className="p-2 border">Discount Factor</th>
-                    <th className="p-2 border">สะสมเดือน (W)</th>
+                    <th className="p-2 border">DiscountFactor</th>
+                    <th className="p-2 border">เดือนสะสม (W)</th>
                   </tr>
                 </thead>
                 <tbody>
