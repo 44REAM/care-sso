@@ -269,7 +269,9 @@ const calculateCARE = (
 		years,
 	};
 };
-
+function formatNumber(num: number): string {
+	return num.toLocaleString('en-IN', { maximumFractionDigits: 0, minimumFractionDigits: 0 });
+  }
 const CAREPensionCalculator: React.FC = () => {
 	const [startYear, setStartYear] = useState<number>(2541);
 	const [endYear, setEndYear] = useState<number>(2569);
@@ -521,7 +523,7 @@ const CAREPensionCalculator: React.FC = () => {
 					<table className="w-full border-collapse border border-gray-300 min-w-[600px] table-fixed">
 						<thead className="bg-gray-100">
 							<tr>
-								<th className="p-2 border">ปี</th>
+								<th className="p-2 border">ปี พ.ศ.</th>
 								<th className="p-2 border">ค่าจ้างเฉลี่ย P[t]</th>
 								<th className="p-2 border">เดือนที่ส่ง ม33 w33[t]</th>
 								<th className="p-2 border">เดือนที่ส่ง ม39 w39[t]</th>
@@ -539,6 +541,7 @@ const CAREPensionCalculator: React.FC = () => {
 											className="block min-w-[80px] p-1 border rounded"
 											value={moneyData[yr] || 0}
 											onChange={(e) =>
+												
 												setMoneyData({
 													...moneyData,
 													[yr]: parseFloat(e.target.value),
@@ -563,6 +566,7 @@ const CAREPensionCalculator: React.FC = () => {
 														...moneyData,
 														[yr]: 1650,
 													})
+												
 												} else {
 													setMoneyData({
 														...moneyData,
@@ -573,7 +577,6 @@ const CAREPensionCalculator: React.FC = () => {
 											min="1650"
 											inputMode="numeric"
 										/>
-
 									</td>
 									<td className="p-2 border">
 										<input
@@ -588,6 +591,7 @@ const CAREPensionCalculator: React.FC = () => {
 											step="1"
 											inputMode="numeric"
 										/>
+
 									</td>
 									<td className="p-2 border">
 										<input
@@ -644,7 +648,7 @@ const CAREPensionCalculator: React.FC = () => {
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
 						<div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
 							<h3 className="text-lg font-medium text-gray-700 mb-2">ฐานเงินบำนาญ</h3>
-							<p className="text-2xl font-bold text-blue-800">{result.finalCombinedAmount.toFixed(0)} บาท</p>
+							<p className="text-2xl font-bold text-blue-800">{ formatNumber(result.finalCombinedAmount) } บาท</p>
 							<p className="text-sm text-gray-600">ค่าเฉลี่ยถ่วงน้ำหนักระหว่าง ม.33 และ ม.39</p>
 						</div>
 						<div className="bg-green-50 p-4 rounded-lg border border-green-200">
@@ -654,7 +658,7 @@ const CAREPensionCalculator: React.FC = () => {
 						</div>
 						<div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
 							<h3 className="text-lg font-medium text-gray-700 mb-2">จำนวนเงินบำนาญ</h3>
-							<p className="text-2xl font-bold text-purple-800">{result.pensionAmount.toFixed(0)} บาท</p>
+							<p className="text-2xl font-bold text-purple-800">{formatNumber(result.pensionAmount)} บาท</p>
 						</div>
 					</div>
 
