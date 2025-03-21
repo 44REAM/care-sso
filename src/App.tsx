@@ -271,7 +271,7 @@ const calculateCARE = (
 };
 function formatNumber(num: number): string {
 	return num.toLocaleString('en-IN', { maximumFractionDigits: 0, minimumFractionDigits: 0 });
-  }
+}
 const CAREPensionCalculator: React.FC = () => {
 	const [startYear, setStartYear] = useState<number>(2541);
 	const [endYear, setEndYear] = useState<number>(2569);
@@ -317,7 +317,7 @@ const CAREPensionCalculator: React.FC = () => {
 				...moneyData,
 				[yr]: 1650,
 			})
-		} 
+		}
 	};
 
 	// Handle month39 data changes with validation
@@ -546,7 +546,7 @@ const CAREPensionCalculator: React.FC = () => {
 											className="w-full p-1 border rounded"
 											value={moneyData[yr] || 0}
 											onChange={(e) =>
-												
+
 												setMoneyData({
 													...moneyData,
 													[yr]: parseFloat(e.target.value),
@@ -571,7 +571,7 @@ const CAREPensionCalculator: React.FC = () => {
 														...moneyData,
 														[yr]: 1650,
 													})
-												
+
 												} else {
 													setMoneyData({
 														...moneyData,
@@ -585,7 +585,7 @@ const CAREPensionCalculator: React.FC = () => {
 											placeholder="กรอกค่าจ้างเฉลี่ย P[t]"
 											style={{ minWidth: '120px' }}
 										/>
-										
+
 									</td>
 									<td className="p-2 border">
 										<input
@@ -659,7 +659,7 @@ const CAREPensionCalculator: React.FC = () => {
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
 						<div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
 							<h3 className="text-lg font-medium text-gray-700 mb-2">ฐานเงินบำนาญ</h3>
-							<p className="text-2xl font-bold text-blue-800">{ formatNumber(result.finalCombinedAmount) } บาท</p>
+							<p className="text-2xl font-bold text-blue-800">{formatNumber(result.finalCombinedAmount)} บาท</p>
 							<p className="text-sm text-gray-600">ค่าเฉลี่ยถ่วงน้ำหนักระหว่าง ม.33 และ ม.39</p>
 						</div>
 						<div className="bg-green-50 p-4 rounded-lg border border-green-200">
@@ -689,7 +689,7 @@ const CAREPensionCalculator: React.FC = () => {
 										<th className="p-2 border">ปี</th>
 										<th className="p-2 border">ReValue33(t)</th>
 										<th className="p-2 border">DiscountFactor(t)</th>
-										<th className="p-2 border">AdjustedAmount33(t)</th>								
+										<th className="p-2 border">AdjustedAmount33(t)</th>
 										<th className="p-2 border">จำนวนเดือนสะสม ม.33 W33</th>
 										<th className="p-2 border">AdjustedAmount39(t)</th>
 										<th className="p-2 border">จำนวนเดือนสะสม ม.39 W39</th>
@@ -711,7 +711,9 @@ const CAREPensionCalculator: React.FC = () => {
 							</table>
 						</div>
 					)}
-				
+					<a href="/CARE_SSO_v2.0.pdf" download="CARE_SSO_v2.0.pdf" className="download-button">
+						อ่านรายละเอียดเพิ่มเติม
+					</a>
 				</div>
 			)}
 

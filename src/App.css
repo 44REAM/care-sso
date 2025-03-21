@@ -277,3 +277,19 @@ td input {
 .text-blue-600.hover\:text-blue-800.font-medium.mb-2.flex.items-center {
   margin: 0 auto;
 }
+
+.download-button {
+  background-color: #FF9800; /* สีส้ม */
+  color: white; /* สีตัวอักษรขาว */
+  padding: 10px 20px; /* ระยะห่างภายในปุ่ม */
+  border: none; /* ไม่มีเส้นขอบ */
+  border-radius: 5px; /* มุมโค้ง */
+  font-size: 16px; /* ขนาดตัวอักษร */
+  text-decoration: none; /* ไม่มีเส้นใต้ */
+  cursor: pointer; /* เปลี่ยนเคอร์เซอร์เป็นรูปมือเมื่อชี้ */
+  transition: background-color 0.3s ease; /* เอฟเฟกต์เปลี่ยนสีเมื่อ hover */
+}
+
+.download-button:hover {
+  background-color: #FFB74D; /* สีส้มอ่อนลงเมื่อ hover */
+}
