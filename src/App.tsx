@@ -376,7 +376,7 @@ const CAREPensionCalculator: React.FC = () => {
 			const newData: RateDataType = {};
 			years.forEach((yr) => {
 				if (staticData[yr] && (staticData[yr].i === null || parseInt(yr) >= 2568)) {
-					newData[yr] = prev[yr] !== undefined ? prev[yr] : "1.04";
+					newData[yr] = prev[yr] !== undefined ? prev[yr] : "1.03";
 				} else if (staticData[yr]) {
 					newData[yr] = prev[yr] !== undefined ? prev[yr] : (staticData[yr].i as number).toString();
 				}
@@ -457,7 +457,7 @@ const CAREPensionCalculator: React.FC = () => {
 
 	return (
 		<div className="bg-gray-50 p-6 rounded-lg shadow-md max-w-5xl mx-auto">
-			<h1 className="text-2xl font-bold text-center mb-6 text-blue-700">CARE Pension Calculator (ม.33 และ ม.39)</h1>
+			<h1 className="text-2xl font-bold text-center mb-6 text-blue-700">การคำนวณค่าบำนาญสูตร CARE</h1>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
 				<div>
@@ -517,10 +517,10 @@ const CAREPensionCalculator: React.FC = () => {
 				</div>
 			</div>
 
-			<div className="mb-6">
+			<div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
 				<h2 className="text-xl font-semibold mb-3">กรอกข้อมูลประจำปี</h2>
 				<div className="overflow-x-auto">
-					<table className="w-full border-collapse border border-gray-300 min-w-[600px] table-fixed">
+					<table className="w-full border-collapse border border-gray-300 text-sm">
 						<thead className="bg-gray-100">
 							<tr>
 								<th className="p-2 border">ปี พ.ศ.</th>
@@ -575,6 +575,7 @@ const CAREPensionCalculator: React.FC = () => {
 												}
 											}}
 											min="1650"
+											step="100"
 											inputMode="numeric"
 										/>
 									</td>
@@ -659,6 +660,7 @@ const CAREPensionCalculator: React.FC = () => {
 						<div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
 							<h3 className="text-lg font-medium text-gray-700 mb-2">จำนวนเงินบำนาญ</h3>
 							<p className="text-2xl font-bold text-purple-800">{formatNumber(result.pensionAmount)} บาท</p>
+							<p className="text-sm text-gray-600">*ค่าที่แสดงยังไม่ได้คิดชดเฉยช่วงเปลี่ยนผ่าน</p>
 						</div>
 					</div>
 
