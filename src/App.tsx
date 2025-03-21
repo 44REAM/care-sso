@@ -84,7 +84,7 @@ const staticData: StaticDataType = {
 
 const getYearArray = (start: number, end: number): string[] => {
 	const years: string[] = [];
-	for (let y = start; y <= end; y++) {
+	for (let y = Math.min(Math.max(start,2541), Math.max(end,2541)); y <= Math.max(Math.min(end,2580), Math.min(start,2580)); y++) {
 		years.push(String(y));
 	}
 	return years;
@@ -271,10 +271,8 @@ const calculateCARE = (
 };
 
 const CAREPensionCalculator: React.FC = () => {
-	const [startYear, setStartYear] = useState<number>(2542);
-	const [tempStartYear, setTempStartYear] = useState<number>(2542);
+	const [startYear, setStartYear] = useState<number>(2541);
 	const [endYear, setEndYear] = useState<number>(2569);
-	const [tempEndYear, setTempEndYear] = useState<number>(2569);
 	const [moneyData, setMoneyData] = useState<MoneyDataType>({});
 	const [month33Data, setMonth33Data] = useState<MonthDataType>({});
 	const [month39Data, setMonth39Data] = useState<MonthDataType>({});
@@ -284,59 +282,6 @@ const CAREPensionCalculator: React.FC = () => {
 	const [isInitialized, setIsInitialized] = useState<boolean>(false);
 	const [showDetails, setShowDetails] = useState<boolean>(false);
 
-	// Apply start year changes
-	const applyStartYear = (): void => {
-		const newStartYear = parseInt(tempStartYear.toString());
-		if (newStartYear < 2541) {
-			setTempStartYear(2541);
-			setStartYear(2541);
-			setError("ปีเริ่มต้นต้องไม่น้อยกว่า 2541");
-		} else if (newStartYear > 2580) {
-			setTempStartYear(2580);
-			setStartYear(2580);
-			setError("ปีเริ่มต้นต้องไม่เกิน 2580");
-		} else if (newStartYear > endYear) {
-			setEndYear(newStartYear);
-			setTempEndYear(newStartYear);
-			setStartYear(newStartYear);
-			setError("ปรับปีสุดท้ายให้เท่ากับปีเริ่มต้น");
-		} else {
-			setStartYear(newStartYear);
-			setError(null);
-		}
-		initializeYearData(newStartYear, endYear);
-	};
-
-	// Apply end year changes
-	const applyEndYear = (): void => {
-		const newEndYear = parseInt(tempEndYear.toString());
-		if (newEndYear > 2580) {
-			setTempEndYear(2580);
-			setEndYear(2580);
-			setError("ปีสุดท้ายต้องไม่เกิน 2580");
-		} else if (newEndYear < startYear) {
-			setTempEndYear(startYear);
-			setEndYear(startYear);
-			setError("ปีสุดท้ายต้องมากกว่าหรือเท่ากับปีเริ่มต้น");
-		} else {
-			setEndYear(newEndYear);
-			setError(null);
-		}
-		initializeYearData(startYear, newEndYear);
-	};
-
-	// Keep the original Enter key handlers for desktop users
-	const handleStartYearKeyPress = (e: React.KeyboardEvent<HTMLInputElement>): void => {
-		if (e.key === 'Enter') {
-			applyStartYear();
-		}
-	};
-
-	const handleEndYearKeyPress = (e: React.KeyboardEvent<HTMLInputElement>): void => {
-		if (e.key === 'Enter') {
-			applyEndYear();
-		}
-	};
 
 	// Validate that the total months (m33 + m39) don't exceed 12
 	const validateMonthsTotal = (yr: string, m33Value: number, m39Value: number): boolean => {
@@ -359,6 +304,12 @@ const CAREPensionCalculator: React.FC = () => {
 				...month33Data,
 				[yr]: m33Value,
 			});
+		}
+		if (m33Value == 0){
+			setMoneyData({
+				...moneyData,
+				[yr]: 0,
+			})
 		}
 	};
 
@@ -440,10 +391,18 @@ const CAREPensionCalculator: React.FC = () => {
 
 	const handleCalculation = (): void => {
 		setError(null);
+
 		try {
 			const years = getYearArray(startYear, endYear);
+			if (startYear < 2541) {
+				throw new Error("ปีเริ่มต้นต้องไม่น้อยกว่า 2541");
+
+			}
+			if (endYear > 2580) {
+				throw new Error("ปีสุดท้ายต้องไม่เกิน 2580");
+			}
 			for (const yr of years) {
-				if (isNaN(moneyData[yr]) || moneyData[yr] <= 0) {
+				if (isNaN(moneyData[yr]) ) {
 					throw new Error(`ค่าเงินค่าจ้างไม่ถูกต้องสำหรับปี ${yr}`);
 				}
 
@@ -462,7 +421,7 @@ const CAREPensionCalculator: React.FC = () => {
 					throw new Error(`จำนวนเดือนรวม (ม.33 + ม.39) สำหรับปี ${yr} ต้องไม่เกิน 12 เดือน`);
 				}
 
-				if (m33Value + m39Value <= 0) {
+				if ((m33Value + m39Value <= 0) && moneyData[yr] != 0) {
 					throw new Error(`จำนวนเดือนรวม (ม.33 + ม.39) สำหรับปี ${yr} ต้องมากกว่า 0`);
 				}
 
@@ -503,18 +462,21 @@ const CAREPensionCalculator: React.FC = () => {
 							<input
 								type="number"
 								className="w-full p-2 border rounded-l"
-								value={tempStartYear}
-								onChange={(e) => setTempStartYear(parseInt(e.target.value))}
-								onKeyPress={handleStartYearKeyPress}
+								value={startYear}
+								onChange={(e) => setStartYear(parseInt(e.target.value))}
+
+								onBlur={(e) => {
+									const inputValue = e.target.value;
+									const parsedValue = parseInt(inputValue);
+									if (!isNaN(parsedValue) && parsedValue >= 2541 && parsedValue <= 2580) {
+										setStartYear(parsedValue);
+									} else {
+										setStartYear(2541); // or some default or error handling
+									}
+								}}
 								min={2541}
 								max={2580}
 							/>
-							<button
-								className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-r"
-								onClick={applyStartYear}
-							>
-								ตกลง
-							</button>
 						</div>
 					</label>
 				</div>
@@ -525,18 +487,26 @@ const CAREPensionCalculator: React.FC = () => {
 							<input
 								type="number"
 								className="w-full p-2 border rounded-l"
-								value={tempEndYear}
-								onChange={(e) => setTempEndYear(parseInt(e.target.value))}
-								onKeyPress={handleEndYearKeyPress}
-								min={startYear}
+								value={endYear}
+								onChange={(e) => setEndYear(parseInt(e.target.value))}
+								onBlur={(e) => {
+									const inputValue = e.target.value;
+									const parsedValue = parseInt(inputValue);
+									if (!isNaN(parsedValue) && parsedValue >= 2541 && parsedValue <= 2580) {
+										setEndYear(parsedValue);
+									} else {
+										setEndYear(2580); // or some default or error handling
+									}
+								}}
+								min={2541}
 								max={2580}
 							/>
-							<button
+							{/* <button
 								className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-r"
 								onClick={applyEndYear}
 							>
 								ตกลง
-							</button>
+							</button> */}
 						</div>
 					</label>
 				</div>
@@ -545,7 +515,7 @@ const CAREPensionCalculator: React.FC = () => {
 			<div className="mb-6">
 				<h2 className="text-xl font-semibold mb-3">กรอกข้อมูลประจำปี</h2>
 				<div className="overflow-x-auto">
-					<table className="w-full border-collapse border border-gray-300">
+					<table className="w-full border-collapse border border-gray-300 min-w-[600px] table-fixed">
 						<thead className="bg-gray-100">
 							<tr>
 								<th className="p-2 border">ปี</th>
@@ -560,9 +530,10 @@ const CAREPensionCalculator: React.FC = () => {
 								<tr key={yr} className="hover:bg-gray-50">
 									<td className="p-2 border text-center">{yr}</td>
 									<td className="p-2 border">
+
 										<input
 											type="number"
-											className="w-24 sm:w-full p-1 border rounded text-right"
+											className="block min-w-[80px] p-1 border rounded"
 											value={moneyData[yr] || 0}
 											onChange={(e) =>
 												setMoneyData({
@@ -570,9 +541,36 @@ const CAREPensionCalculator: React.FC = () => {
 													[yr]: parseFloat(e.target.value),
 												})
 											}
-											min="1"
+											onBlur={(e) => {
+												const inputValue = e.target.value;
+												const parsedValue = parseFloat(inputValue);
+												if (!isNaN(parsedValue) && parsedValue >= 1650 && parsedValue <= staticData[yr].M) {
+													setMoneyData({
+														...moneyData,
+														[yr]: parseFloat(e.target.value),
+													})
+												}else if (month33Data[yr] ==0  ) {
+													setMoneyData({
+														...moneyData,
+														[yr]: 0,
+													})
+												} 
+												else if (parsedValue < 1650  ) {
+													setMoneyData({
+														...moneyData,
+														[yr]: 1650,
+													})
+												} else {
+													setMoneyData({
+														...moneyData,
+														[yr]: staticData[yr].M,
+													})
+												}
+											}}
+											min="1650"
 											inputMode="numeric"
 										/>
+
 									</td>
 									<td className="p-2 border">
 										<input
@@ -694,7 +692,7 @@ const CAREPensionCalculator: React.FC = () => {
 					)}
 					<a
 						href="src/asset/CARE_SSO_v2.0pdf"
-						download ="CARE_SSO_v2.0.pdf"
+						download="CARE_SSO_v2.0.pdf"
 						className="download-button"
 						style={{
 							fontSize: "20px",
