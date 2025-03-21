@@ -73,7 +73,7 @@ const staticData: StaticDataType = {
   "2571": { C: 17500, M: 17500, i: null },
   "2572": { C: 20000, M: 20000, i: null },
   "2573": { C: 20000, M: 20000, i: null },
-  "2574": { C: 23000, M: 23000, i: null },
+  "2574": { C: 20000, M: 20000, i: null },
   "2575": { C: 23000, M: 23000, i: null },
   "2576": { C: 23000, M: 23000, i: null },
   "2577": { C: 23000, M: 23000, i: null },
@@ -644,7 +644,7 @@ const CAREPensionCalculator: React.FC = () => {
             </div>
             <div className="bg-green-50 p-4 rounded-lg border border-green-200">
               <h3 className="text-lg font-medium text-gray-700 mb-2">เปอร์เซนต์เงินบำนาญ</h3>
-              <p className="text-2xl font-bold text-purple-800">{result.pensionPercentage.toFixed(3)*100}%</p>
+              <p className="text-2xl font-bold text-purple-800">{(result.pensionPercentage* 100).toFixed(3)}%</p>
               <p className="text-sm text-gray-600">จำนวนเดือนสะสมทั้งหมด: {result.totalCumMonths[result.years[result.years.length - 1]]}</p>
             </div>
             <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
