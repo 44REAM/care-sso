@@ -312,7 +312,12 @@ const CAREPensionCalculator: React.FC = () => {
 				...moneyData,
 				[yr]: 0,
 			})
-		}
+		} else if (m33Value > 0 && moneyData[yr] <= 0) {
+			setMoneyData({
+				...moneyData,
+				[yr]: 1650,
+			})
+		} 
 	};
 
 	// Handle month39 data changes with validation
@@ -534,11 +539,11 @@ const CAREPensionCalculator: React.FC = () => {
 							{getYearArray(startYear, endYear).map((yr) => (
 								<tr key={yr} className="hover:bg-gray-50">
 									<td className="p-2 border text-center">{yr}</td>
-									<td className="p-2 border">
+									<td className="p-2 border text-right">
 
 										<input
 											type="number"
-											className="block min-w-[80px] p-1 border rounded"
+											className="w-full p-1 border rounded"
 											value={moneyData[yr] || 0}
 											onChange={(e) =>
 												
@@ -575,9 +580,12 @@ const CAREPensionCalculator: React.FC = () => {
 												}
 											}}
 											min="1650"
-											step="100"
+											step="1"
 											inputMode="numeric"
+											placeholder="กรอกค่าจ้างเฉลี่ย P[t]"
+											
 										/>
+										
 									</td>
 									<td className="p-2 border">
 										<input
@@ -701,23 +709,7 @@ const CAREPensionCalculator: React.FC = () => {
 							</table>
 						</div>
 					)}
-					<a
-						href="/CARE_SSO_v2.0pdf"
-						download="CARE_SSO_v2.0.pdf"
-						className="download-button"
-						style={{
-							fontSize: "20px",
-							padding: "12px 24px",
-							backgroundColor: "#4CAF50",
-							color: "white",
-							textDecoration: "none",
-							borderRadius: "4px",
-							display: "inline-block",
-							margin: "10px 0"
-						}}
-					>
-						อ่านรายละเอียดเพิ่มเติม
-					</a>
+				
 				</div>
 			)}
 
