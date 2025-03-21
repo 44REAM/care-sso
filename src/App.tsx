@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 
-// Define TypeScript interfaces
+// Define TypeScript interfaces for our data structures
 interface YearData {
   C: number;
   M: number;
@@ -25,13 +25,17 @@ interface RateDataType {
 }
 
 interface CalculationResult {
-  ReValue: { [year: string]: number };
-  AdjustedAmount: { [year: string]: number };
+  ReValue33: { [year: string]: number };
+  AdjustedAmount33: { [year: string]: number };
+  m39Values: { [year: string]: number };
   discountFactors: { [year: string]: number };
-  finalAdjustedAmount: number;
+  cumMonths33: { [year: string]: number };
+  cumMonths39: { [year: string]: number };
+  totalCumMonths: { [year: string]: number };
+  combinedAdjustedAmount: { [year: string]: number };
+  finalCombinedAmount: number;
   pensionPercentage: number;
   pensionAmount: number;
-  cumMonths: { [year: string]: number };
   years: string[];
 }
 
@@ -86,41 +90,72 @@ const getYearArray = (start: number, end: number): string[] => {
   return years;
 };
 
-const computeDiscountFactor = (years: string[], tIdx: number, dataOverride: StaticDataType): number => {
-  if (tIdx < 4) return 1;
+const computeDiscountFactor = (year: number, dataOverride: { [key: string]: YearData }): number => {
+  if (year < 2543) return 1;
   let pureRevaluedAvg = 1;
-  for (let k = tIdx - 4; k < tIdx; k++) {
-    const yr = years[k];
-    pureRevaluedAvg *= dataOverride[yr].i as number; // Using type assertion since we know i is not null here
+  for (let k = Math.max(year - 4, 2541); k < year; k++) {
+    if (dataOverride[k]?.i !== null) {
+      pureRevaluedAvg *= dataOverride[k].i as number;
+    }
   }
   let sum = 1;
-  for (let j = tIdx - 4; j < tIdx; j++) {
+  let count = 0;
+  for (let j = Math.max(year - 4, 2541); j < year; j++) {
     let prod = 1;
-    for (let k = tIdx - 4; k <= j; k++) {
-      prod *= dataOverride[years[k]].i as number; // Using type assertion since we know i is not null here
+    for (let k = Math.max(year - 4, 2541); k <= j; k++) {
+      if (dataOverride[k]?.i !== null) {
+        prod *= dataOverride[k].i as number;
+      }
     }
     sum += prod;
+    count += 1;
   }
-  const oldNominalAvg = sum / 5;
+  const oldNominalAvg = sum / (count + 1);
   return pureRevaluedAvg / oldNominalAvg;
 };
 
+// Calculate ceiling value for M39 based on the year
+const calculateM39Ceiling = (year: string, dataOverride: { [key: string]: YearData }): number => {
+  const baseValue = 4800;
+
+  if (parseInt(year) <= 2569) {
+    return baseValue;
+  }
+
+  // Calculate the dynamic ceiling value for years after 2569
+  let ceiling = baseValue;
+  for (let y = 2570; y <= parseInt(year); y++) {
+    const prevYear = String(y - 1);
+    if (dataOverride[prevYear]?.i !== null) {
+      ceiling = ceiling * (dataOverride[prevYear].i as number);
+    }
+  }
+
+  return ceiling;
+};
+
 const calculateCARE = (
-  startYear: number, 
-  endYear: number, 
-  moneyData: MoneyDataType, 
-  monthData: MonthDataType, 
+  startYear: number,
+  endYear: number,
+  moneyData: MoneyDataType,
+  month33Data: MonthDataType,
+  month39Data: MonthDataType,
   rateData: RateDataType
 ): CalculationResult => {
   const years = getYearArray(startYear, endYear);
   const n = years.length;
-  const ReValue: { [year: string]: number } = {};
-  const AdjustedAmount: { [year: string]: number } = {};
-  const cumMonths: { [year: string]: number } = {};
-  const discountFactors: { [year: string]: number } = {};
+  const ReValue33: { [key: string]: number } = {};
+  const AdjustedAmount33: { [key: string]: number } = {};
+  const m39Values: { [key: string]: number } = {};
+  const cumMonths33: { [key: string]: number } = {};
+  const cumMonths39: { [key: string]: number } = {};
+  const totalCumMonths: { [key: string]: number } = {};
+  const discountFactors: { [key: string]: number } = {};
+  const combinedAdjustedAmount: { [key: string]: number } = {};
 
-  const dataOverride: StaticDataType = {};
-  years.forEach((yr) => {
+  const dataOverride: { [key: string]: YearData } = {};
+  Object.keys(staticData).forEach((yr) => {
+    if (parseInt(yr) > endYear) return;
     if (!staticData[yr]) {
       throw new Error(`ไม่มีข้อมูลสำหรับปี ${yr}`);
     }
@@ -140,54 +175,76 @@ const calculateCARE = (
     dataOverride[yr] = { ...staticData[yr], i: iVal };
   });
 
-  let previousReValue = 0;
-  let previousAdjustedAmount = 0;
-  let previousCumMonths = 0;
+  let previousReValue33 = 0;
+  let previousAdjustedAmount33 = 0;
+  let previousCumMonths33 = 0;
+  let previousCumMonths39 = 0;
 
+  // First pass to calculate M33 values
   for (let idx = 0; idx < n; idx++) {
     const yr = years[idx];
     const data = dataOverride[yr];
     const P = moneyData[yr];
-    const w = monthData[yr];
+    const w33 = month33Data[yr];
+    const w39 = month39Data[yr];
     const currentC = data.C;
     const currentM = data.M;
 
-    const W_prev = previousCumMonths;
-    const W_current = previousCumMonths + w;
+    const W33_prev = previousCumMonths33;
+    const W33_current = previousCumMonths33 + w33;
+    const W39_current = previousCumMonths39 + w39;
 
-    let currentReValue: number;
-    if (idx === 0) {
-      currentReValue = P;
+    cumMonths33[yr] = W33_current;
+    cumMonths39[yr] = W39_current;
+    totalCumMonths[yr] = W33_current + W39_current;
+
+    // Calculate M33 ReValue
+    let currentReValue33: number;
+    if (idx === 0 || W33_prev === 0) {
+      currentReValue33 = P;
     } else {
       const prevYear = years[idx - 1];
-      const i_prev = dataOverride[prevYear].i as number; // Using type assertion since we know i is not null here
+      const i_prev = dataOverride[prevYear].i as number;
       const corrected_i_prev = i_prev < 1 ? 1 : i_prev;
-      const candidate = previousReValue * corrected_i_prev;
+      const candidate = previousReValue33 * corrected_i_prev;
       const cappedCandidate = Math.min(candidate, currentC);
-      currentReValue = (cappedCandidate * W_prev + P * w) / W_current;
+      currentReValue33 = (W33_prev > 0) ? (cappedCandidate * W33_prev + P * w33) / W33_current : P;
     }
-    cumMonths[yr] = W_current;
-    ReValue[yr] = currentReValue;
 
-    const discountFactor = computeDiscountFactor(years, idx, dataOverride);
+    ReValue33[yr] = currentReValue33;
+
+    const discountFactor = computeDiscountFactor(parseInt(yr), dataOverride);
     discountFactors[yr] = discountFactor;
 
-    const part1 = Math.min(currentReValue / discountFactor, currentM);
-    let part2 = currentReValue;
-    if (idx > 0) {
-      part2 = Math.min(previousAdjustedAmount, currentReValue);
+    const part1 = Math.min(currentReValue33 / discountFactor, currentM);
+    let part2 = currentReValue33;
+    if (idx > 0 && W33_prev > 0) {
+      part2 = Math.min(previousAdjustedAmount33, currentReValue33);
     }
-    const currentAdjustedAmount = Math.max(part1, part2);
-    AdjustedAmount[yr] = currentAdjustedAmount;
+    const currentAdjustedAmount33 = Math.max(part1, part2);
+    AdjustedAmount33[yr] = currentAdjustedAmount33;
 
-    previousReValue = currentReValue;
-    previousAdjustedAmount = currentAdjustedAmount;
-    previousCumMonths = W_current;
+    // Calculate M39 value for this year
+    const m39Ceiling = calculateM39Ceiling(yr, dataOverride);
+    m39Values[yr] = m39Ceiling;
+
+    // Calculate the weighted average for combined adjusted amount
+    const totalMonths = totalCumMonths[yr];
+    if (totalMonths > 0) {
+      combinedAdjustedAmount[yr] = (cumMonths33[yr] * currentAdjustedAmount33 + cumMonths39[yr] * m39Ceiling) / totalMonths;
+    } else {
+      combinedAdjustedAmount[yr] = 0;
+    }
+
+    previousReValue33 = currentReValue33;
+    previousAdjustedAmount33 = currentAdjustedAmount33;
+    previousCumMonths33 = W33_current;
+    previousCumMonths39 = W39_current;
   }
 
   const T = years[n - 1];
-  const finalAdjustedAmount = AdjustedAmount[T];
-  const totalMonths = cumMonths[T];
+  const finalCombinedAmount = combinedAdjustedAmount[T];
+  const totalMonths = totalCumMonths[T];
   let pensionPercentage = 0;
 
   if (totalMonths <= 180) {
@@ -195,16 +252,20 @@ const calculateCARE = (
   } else {
     pensionPercentage = 0.20 + 0.00125 * (totalMonths - 180);
   }
-  const pensionAmount = pensionPercentage * finalAdjustedAmount;
+  const pensionAmount = pensionPercentage * finalCombinedAmount;
 
   return {
-    ReValue,
-    AdjustedAmount,
+    ReValue33,
+    AdjustedAmount33,
+    m39Values,
     discountFactors,
-    finalAdjustedAmount,
+    cumMonths33,
+    cumMonths39,
+    totalCumMonths,
+    combinedAdjustedAmount,
+    finalCombinedAmount,
     pensionPercentage,
     pensionAmount,
-    cumMonths,
     years,
   };
 };
@@ -215,7 +276,8 @@ const CAREPensionCalculator: React.FC = () => {
   const [endYear, setEndYear] = useState<number>(2569);
   const [tempEndYear, setTempEndYear] = useState<number>(2569);
   const [moneyData, setMoneyData] = useState<MoneyDataType>({});
-  const [monthData, setMonthData] = useState<MonthDataType>({});
+  const [month33Data, setMonth33Data] = useState<MonthDataType>({});
+  const [month39Data, setMonth39Data] = useState<MonthDataType>({});
   const [rateData, setRateData] = useState<RateDataType>({});
   const [result, setResult] = useState<CalculationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -276,20 +338,57 @@ const CAREPensionCalculator: React.FC = () => {
     }
   };
 
+  // Validate that the total months (m33 + m39) don't exceed 12
+  const validateMonthsTotal = (yr: string, m33Value: number, m39Value: number): boolean => {
+    const total = parseFloat(m33Value.toString()) + parseFloat(m39Value.toString());
+    if (total > 12) {
+      setError(`จำนวนเดือนรวม (ม.33 + ม.39) สำหรับปี ${yr} ต้องไม่เกิน 12 เดือน`);
+      return false;
+    }
+    setError(null);
+    return true;
+  };
+
+  // Handle month33 data changes with validation
+  const handleMonth33Change = (yr: string, value: string): void => {
+    const m33Value = parseFloat(value);
+    const m39Value = month39Data[yr] || 0;
+
+    if (validateMonthsTotal(yr, m33Value, m39Value)) {
+      setMonth33Data({
+        ...month33Data,
+        [yr]: m33Value,
+      });
+    }
+  };
+
+  // Handle month39 data changes with validation
+  const handleMonth39Change = (yr: string, value: string): void => {
+    const m39Value = parseFloat(value);
+    const m33Value = month33Data[yr] || 0;
+
+    if (validateMonthsTotal(yr, m33Value, m39Value)) {
+      setMonth39Data({
+        ...month39Data,
+        [yr]: m39Value,
+      });
+    }
+  };
+
   // Handle rate data input with validation
   const handleRateDataChange = (yr: string, value: string): void => {
     let newValue = value;
-    
+
     // If the value is not empty, validate it
     if (newValue !== "") {
       const floatValue = parseFloat(newValue);
-      
+
       // Don't allow values less than 1
       if (floatValue < 1) {
         newValue = "1";
       }
     }
-    
+
     setRateData({
       ...rateData,
       [yr]: newValue
@@ -306,10 +405,17 @@ const CAREPensionCalculator: React.FC = () => {
       });
       return newData;
     });
-    setMonthData((prev) => {
+    setMonth33Data((prev) => {
       const newData: MonthDataType = {};
       years.forEach((yr) => {
         newData[yr] = prev[yr] !== undefined ? prev[yr] : 12;
+      });
+      return newData;
+    });
+    setMonth39Data((prev) => {
+      const newData: MonthDataType = {};
+      years.forEach((yr) => {
+        newData[yr] = prev[yr] !== undefined ? prev[yr] : 0;
       });
       return newData;
     });
@@ -340,10 +446,26 @@ const CAREPensionCalculator: React.FC = () => {
         if (isNaN(moneyData[yr]) || moneyData[yr] <= 0) {
           throw new Error(`ค่าเงินค่าจ้างไม่ถูกต้องสำหรับปี ${yr}`);
         }
-        if (isNaN(monthData[yr]) || monthData[yr] <= 0) {
-          throw new Error(`จำนวนเดือนไม่ถูกต้องสำหรับปี ${yr}`);
+
+        const m33Value = month33Data[yr] || 0;
+        const m39Value = month39Data[yr] || 0;
+
+        if (isNaN(m33Value) || m33Value < 0) {
+          throw new Error(`จำนวนเดือน ม.33 ไม่ถูกต้องสำหรับปี ${yr}`);
         }
-              
+
+        if (isNaN(m39Value) || m39Value < 0) {
+          throw new Error(`จำนวนเดือน ม.39 ไม่ถูกต้องสำหรับปี ${yr}`);
+        }
+
+        if (m33Value + m39Value > 12) {
+          throw new Error(`จำนวนเดือนรวม (ม.33 + ม.39) สำหรับปี ${yr} ต้องไม่เกิน 12 เดือน`);
+        }
+
+        if (m33Value + m39Value <= 0) {
+          throw new Error(`จำนวนเดือนรวม (ม.33 + ม.39) สำหรับปี ${yr} ต้องมากกว่า 0`);
+        }
+
         if (parseInt(yr) >= 2568) {
           if (isNaN(parseFloat(rateData[yr])) || parseFloat(rateData[yr]) <= 0) {
             throw new Error(`ค่า i ไม่ถูกต้องสำหรับปี ${yr}`);
@@ -353,10 +475,14 @@ const CAREPensionCalculator: React.FC = () => {
           }
         }
       }
-      const calcResult = calculateCARE(startYear, endYear, moneyData, monthData, rateData);
+      const calcResult = calculateCARE(startYear, endYear, moneyData, month33Data, month39Data, rateData);
       setResult(calcResult);
     } catch (err) {
-      setError((err as Error).message || "Error during calculation");
+      if (err instanceof Error) {
+        setError(err.message || "Error during calculation");
+      } else {
+        setError("Unknown error occurred during calculation");
+      }
       setResult(null);
     }
   };
@@ -366,13 +492,13 @@ const CAREPensionCalculator: React.FC = () => {
   }
 
   return (
-    <div className="bg-gray-50 p-6 rounded-lg shadow-md max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-center mb-6 text-blue-700">CARE Pension Calculator</h1>
-      
+    <div className="bg-gray-50 p-6 rounded-lg shadow-md max-w-5xl mx-auto">
+      <h1 className="text-2xl font-bold text-center mb-6 text-blue-700">CARE Pension Calculator (ม.33 และ ม.39)</h1>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <div>
           <label className="block text-gray-700 mb-2">
-            Start Year (เช่น 2541):
+            ปีทีี่เริ่มส่งเงินสมทบ (เช่น 2541):
             <div className="flex mt-1">
               <input
                 type="number"
@@ -383,7 +509,7 @@ const CAREPensionCalculator: React.FC = () => {
                 min={2541}
                 max={2580}
               />
-              <button 
+              <button
                 className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-r"
                 onClick={applyStartYear}
               >
@@ -394,7 +520,7 @@ const CAREPensionCalculator: React.FC = () => {
         </div>
         <div>
           <label className="block text-gray-700 mb-2">
-            End Year (เช่น 2556):
+            ปีที่เกิดสิทธิรับบำนาญ (เช่น 2556):
             <div className="flex mt-1">
               <input
                 type="number"
@@ -405,7 +531,7 @@ const CAREPensionCalculator: React.FC = () => {
                 min={startYear}
                 max={2580}
               />
-              <button 
+              <button
                 className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-r"
                 onClick={applyEndYear}
               >
@@ -423,9 +549,10 @@ const CAREPensionCalculator: React.FC = () => {
             <thead className="bg-gray-100">
               <tr>
                 <th className="p-2 border">ปี</th>
-                <th className="p-2 border">เงินค่าจ้าง (P[t])</th>
-                <th className="p-2 border">จำนวนเดือน (w[t])</th>
-                <th className="p-2 border">ค่า i[t]</th>
+                <th className="p-2 border">เงินค่าจ้างเฉลี่ย (P[t])</th>
+                <th className="p-2 border">จำนวนเดือนที่ส่ง ม.33 (w33[t])</th>
+                <th className="p-2 border">จำนวนเดือนที่ส่ง ม.39 (w39[t])</th>
+                <th className="p-2 border">ค่า index i[t]</th>
               </tr>
             </thead>
             <tbody>
@@ -450,15 +577,26 @@ const CAREPensionCalculator: React.FC = () => {
                     <input
                       type="number"
                       className="w-full p-1 border rounded"
-                      value={monthData[yr] || 0}
+                      value={month33Data[yr] || 0}
                       onChange={(e) =>
-                        setMonthData({
-                          ...monthData,
-                          [yr]: parseFloat(e.target.value),
-                        })
+                        handleMonth33Change(yr, e.target.value)
                       }
-                      min="1"
+                      min="0"
                       max="12"
+                      step="1"
+                    />
+                  </td>
+                  <td className="p-2 border">
+                    <input
+                      type="number"
+                      className="w-full p-1 border rounded"
+                      value={month39Data[yr] || 0}
+                      onChange={(e) =>
+                        handleMonth39Change(yr, e.target.value)
+                      }
+                      min="0"
+                      max="12"
+                      step="1"
                     />
                   </td>
                   <td className="p-2 border">
@@ -482,72 +620,96 @@ const CAREPensionCalculator: React.FC = () => {
           </table>
         </div>
       </div>
-      
-      <button 
+
+      <button
         className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full mb-4"
         onClick={handleCalculation}
       >
         คำนวณ
       </button>
-      
+
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
           <strong>Error:</strong> {error}
         </div>
       )}
-      
+
       {result && (
         <div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <h3 className="text-lg font-medium text-gray-700 mb-2">AdjustedAmount(T)</h3>
-              <p className="text-2xl font-bold text-blue-800">{result.finalAdjustedAmount.toFixed(2)}</p>
+              <h3 className="text-lg font-medium text-gray-700 mb-2">ฐานเงินบำนาญ</h3>
+              <p className="text-2xl font-bold text-blue-800">{result.finalCombinedAmount.toFixed(2)}</p>
+              <p className="text-sm text-gray-600">ค่าถ่วงน้ำหนักระหว่าง ม.33 และ ม.39</p>
             </div>
             <div className="bg-green-50 p-4 rounded-lg border border-green-200">
               <h3 className="text-lg font-medium text-gray-700 mb-2">เปอร์เซนต์เงินบำนาญ</h3>
-              <p className="text-2xl font-bold text-green-800">{(result.pensionPercentage * 100).toFixed(3)}%</p>
+              <p className="text-2xl font-bold text-purple-800">{result.pensionPercentage.toFixed(2)}%</p>
+              <p className="text-sm text-gray-600">จำนวนเดือนสะสมทั้งหมด: {result.totalCumMonths[result.years[result.years.length - 1]]}</p>
             </div>
             <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
               <h3 className="text-lg font-medium text-gray-700 mb-2">จำนวนเงินบำนาญ</h3>
               <p className="text-2xl font-bold text-purple-800">{result.pensionAmount.toFixed(2)}</p>
             </div>
           </div>
-          
-          <button 
+
+          <button
             className="text-blue-600 hover:text-blue-800 font-medium mb-2 flex items-center"
             onClick={() => setShowDetails(!showDetails)}
           >
             {showDetails ? "ซ่อนตารางคำนวณ ▲" : "แสดงตารางคำนวณ ▼"}
           </button>
-          
+
           {showDetails && (
             <div className="overflow-x-auto">
               <table className="w-full border-collapse border border-gray-300 text-sm">
                 <thead className="bg-gray-100">
                   <tr>
                     <th className="p-2 border">ปี</th>
-                    <th className="p-2 border">ReValue</th>
-                    <th className="p-2 border">AdjustedAmount</th>
-                    <th className="p-2 border">Discount Factor</th>
-                    <th className="p-2 border">สะสมเดือน (W)</th>
+                    <th className="p-2 border">ReValue(t)</th>
+                    <th className="p-2 border">AdjustedAmount(t)</th>
+                    <th className="p-2 border">DiscountFactor(t)</th>
+                    <th className="p-2 border">จำนวนเดือนสะสม ม.33 (W33)</th>
+                    <th className="p-2 border">จำนวนเดือนสะสม ม.39 (W39)</th>
                   </tr>
                 </thead>
                 <tbody>
                   {result.years.map((yr) => (
                     <tr key={yr} className="hover:bg-gray-50">
                       <td className="p-2 border text-center">{yr}</td>
-                      <td className="p-2 border text-right">{result.ReValue[yr].toFixed(2)}</td>
-                      <td className="p-2 border text-right">{result.AdjustedAmount[yr].toFixed(2)}</td>
+                      <td className="p-2 border text-right">{result.ReValue33[yr].toFixed(2)}</td>
+                      <td className="p-2 border text-right">{result.AdjustedAmount33[yr].toFixed(2)}</td>
                       <td className="p-2 border text-right">{result.discountFactors[yr].toFixed(4)}</td>
-                      <td className="p-2 border text-right">{result.cumMonths[yr]}</td>
+                      <td className="p-2 border text-right">{result.cumMonths33[yr]}</td>
+                      <td className="p-2 border text-right">{result.cumMonths39[yr]}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           )}
+          <a
+            href="src/asset/CARE_SSO_v2.0pdf"
+            download
+            className="download-button"
+            style={{
+              fontSize: "20px",
+              padding: "12px 24px",
+              backgroundColor: "#4CAF50",
+              color: "white",
+              textDecoration: "none",
+              borderRadius: "4px",
+              display: "inline-block",
+              margin: "10px 0"
+            }}
+          >
+            อ่านรายละเอียดเพิ่มเติม
+          </a>
         </div>
       )}
+
+
+
     </div>
   );
 };
