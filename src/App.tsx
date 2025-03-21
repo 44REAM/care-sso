@@ -702,7 +702,7 @@ const CAREPensionCalculator: React.FC = () => {
 						</div>
 					)}
 					<a
-						href="src/asset/CARE_SSO_v2.0pdf"
+						href="public/CARE_SSO_v2.0pdf"
 						download="CARE_SSO_v2.0.pdf"
 						className="download-button"
 						style={{
