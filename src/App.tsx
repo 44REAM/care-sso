@@ -84,7 +84,7 @@ const staticData: StaticDataType = {
 
 const getYearArray = (start: number, end: number): string[] => {
 	const years: string[] = [];
-	for (let y = Math.min(Math.max(start,2541), Math.max(end,2541)); y <= Math.max(Math.min(end,2580), Math.min(start,2580)); y++) {
+	for (let y = Math.min(Math.max(start, 2541), Math.max(end, 2541)); y <= Math.max(Math.min(end, 2580), Math.min(start, 2580)); y++) {
 		years.push(String(y));
 	}
 	return years;
@@ -305,7 +305,7 @@ const CAREPensionCalculator: React.FC = () => {
 				[yr]: m33Value,
 			});
 		}
-		if (m33Value == 0){
+		if (m33Value == 0) {
 			setMoneyData({
 				...moneyData,
 				[yr]: 0,
@@ -386,7 +386,7 @@ const CAREPensionCalculator: React.FC = () => {
 
 	// Initial setup (only once)
 	useEffect(() => {
-		initializeYearData(startYear, endYear);
+		initializeYearData(2541, 2580);
 	}, []);
 
 	const handleCalculation = (): void => {
@@ -402,7 +402,7 @@ const CAREPensionCalculator: React.FC = () => {
 				throw new Error("ปีสุดท้ายต้องไม่เกิน 2580");
 			}
 			for (const yr of years) {
-				if (isNaN(moneyData[yr]) ) {
+				if (isNaN(moneyData[yr])) {
 					throw new Error(`ค่าเงินค่าจ้างไม่ถูกต้องสำหรับปี ${yr}`);
 				}
 
@@ -421,8 +421,11 @@ const CAREPensionCalculator: React.FC = () => {
 					throw new Error(`จำนวนเดือนรวม (ม.33 + ม.39) สำหรับปี ${yr} ต้องไม่เกิน 12 เดือน`);
 				}
 
-				if ((m33Value + m39Value <= 0) && moneyData[yr] != 0) {
+				if ((m33Value + m39Value <= 0) && moneyData[yr] > 0) {
 					throw new Error(`จำนวนเดือนรวม (ม.33 + ม.39) สำหรับปี ${yr} ต้องมากกว่า 0`);
+				}
+				if ((m33Value > 0) && moneyData[yr] <= 0) {
+					throw new Error(`ค่าเงินค่าจ้างไม่ถูกต้องสำหรับปี ${yr} เงินค่าจ้างต้องมากกว่า 1650 บาท`);
 				}
 
 				if (parseInt(yr) >= 2568) {
@@ -549,13 +552,13 @@ const CAREPensionCalculator: React.FC = () => {
 														...moneyData,
 														[yr]: parseFloat(e.target.value),
 													})
-												}else if (month33Data[yr] ==0  ) {
+												} else if (month33Data[yr] == 0) {
 													setMoneyData({
 														...moneyData,
 														[yr]: 0,
 													})
-												} 
-												else if (parsedValue < 1650  ) {
+												}
+												else if (parsedValue < 1650) {
 													setMoneyData({
 														...moneyData,
 														[yr]: 1650,
@@ -669,9 +672,10 @@ const CAREPensionCalculator: React.FC = () => {
 									<tr>
 										<th className="p-2 border">ปี</th>
 										<th className="p-2 border">ReValue33(t)</th>
-										<th className="p-2 border">AdjustedAmount33(t)</th>
 										<th className="p-2 border">DiscountFactor(t)</th>
+										<th className="p-2 border">AdjustedAmount33(t)</th>								
 										<th className="p-2 border">จำนวนเดือนสะสม ม.33 W33</th>
+										<th className="p-2 border">AdjustedAmount39(t)</th>
 										<th className="p-2 border">จำนวนเดือนสะสม ม.39 W39</th>
 									</tr>
 								</thead>
@@ -680,9 +684,10 @@ const CAREPensionCalculator: React.FC = () => {
 										<tr key={yr} className="hover:bg-gray-50">
 											<td className="p-2 border text-center">{yr}</td>
 											<td className="p-2 border text-right">{result.ReValue33[yr].toFixed(2)}</td>
-											<td className="p-2 border text-right">{result.AdjustedAmount33[yr].toFixed(2)}</td>
 											<td className="p-2 border text-right">{result.discountFactors[yr].toFixed(4)}</td>
+											<td className="p-2 border text-right">{result.AdjustedAmount33[yr].toFixed(2)}</td>
 											<td className="p-2 border text-right">{result.cumMonths33[yr]}</td>
+											<td className="p-2 border text-right">{result.m39Values[yr].toFixed(2)}</td>
 											<td className="p-2 border text-right">{result.cumMonths39[yr]}</td>
 										</tr>
 									))}
