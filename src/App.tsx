@@ -583,7 +583,7 @@ const CAREPensionCalculator: React.FC = () => {
 											step="1"
 											inputMode="numeric"
 											placeholder="กรอกค่าจ้างเฉลี่ย P[t]"
-											
+											style={{ minWidth: '120px' }}
 										/>
 										
 									</td>
@@ -599,6 +599,7 @@ const CAREPensionCalculator: React.FC = () => {
 											max="12"
 											step="1"
 											inputMode="numeric"
+											style={{ minWidth: '60px' }}
 										/>
 
 									</td>
@@ -614,6 +615,7 @@ const CAREPensionCalculator: React.FC = () => {
 											max="12"
 											step="1"
 											inputMode="numeric"
+											style={{ minWidth: '60px' }}
 										/>
 									</td>
 									<td className="p-2 border">
