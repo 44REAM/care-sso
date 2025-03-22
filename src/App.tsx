@@ -298,7 +298,9 @@ const CAREPensionCalculator: React.FC = () => {
 
 	// Handle month33 data changes with validation
 	const handleMonth33Change = (yr: string, value: string): void => {
-		const m33Value = parseFloat(value);
+
+		const m33Value = parseInt(value, 10);
+
 		const m39Value = month39Data[yr] || 0;
 
 		if (validateMonthsTotal(yr, m33Value, m39Value)) {
@@ -307,7 +309,7 @@ const CAREPensionCalculator: React.FC = () => {
 				[yr]: m33Value,
 			});
 		}
-		if (m33Value == 0) {
+		if (m33Value === 0) {
 			setMoneyData({
 				...moneyData,
 				[yr]: 0,
@@ -544,7 +546,7 @@ const CAREPensionCalculator: React.FC = () => {
 										<input
 											type="number"
 											className="w-full p-1 border rounded"
-											value={moneyData[yr] || 0}
+											value={(moneyData[yr] || 0).toString()}
 											onChange={(e) =>
 
 												setMoneyData({
@@ -560,7 +562,7 @@ const CAREPensionCalculator: React.FC = () => {
 														...moneyData,
 														[yr]: parseFloat(e.target.value),
 													})
-												} else if (month33Data[yr] == 0) {
+												} else if (month33Data[yr] === 0) {
 													setMoneyData({
 														...moneyData,
 														[yr]: 0,
@@ -591,7 +593,7 @@ const CAREPensionCalculator: React.FC = () => {
 										<input
 											type="number"
 											className="w-full p-1 border rounded"
-											value={month33Data[yr] || 0}
+											value={(month33Data[yr] || 0).toString() }
 											onChange={(e) =>
 												handleMonth33Change(yr, e.target.value)
 											}
@@ -607,7 +609,7 @@ const CAREPensionCalculator: React.FC = () => {
 										<input
 											type="number"
 											className="w-full p-1 border rounded"
-											value={month39Data[yr] || 0}
+											value={(month39Data[yr] || 0).toString()}
 											onChange={(e) =>
 												handleMonth39Change(yr, e.target.value)
 											}
