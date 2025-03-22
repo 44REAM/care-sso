@@ -20,8 +20,9 @@ interface MonthDataType {
 	[year: string]: number;
 }
 
+// Changed from string to number
 interface RateDataType {
-	[year: string]: string;
+	[year: string]: number;
 }
 
 interface CalculationResult {
@@ -161,10 +162,10 @@ const calculateCARE = (
 		}
 		let iVal = staticData[yr].i;
 		if (iVal === null || parseInt(yr) >= 2568) {
-			if (rateData[yr] === undefined || rateData[yr] === "") {
+			if (rateData[yr] === undefined || isNaN(rateData[yr])) {
 				throw new Error(`กรุณากรอกค่า i สำหรับปี ${yr}`);
 			}
-			iVal = parseFloat(rateData[yr]);
+			iVal = rateData[yr];
 			if (isNaN(iVal)) {
 				throw new Error(`ค่า i สำหรับปี ${yr} ไม่ถูกต้อง`);
 			}
@@ -269,9 +270,12 @@ const calculateCARE = (
 		years,
 	};
 };
+
 function formatNumber(num: number): string {
 	return num.toLocaleString('en-IN', { maximumFractionDigits: 0, minimumFractionDigits: 0 });
 }
+
+
 const CAREPensionCalculator: React.FC = () => {
 	const [startYear, setStartYear] = useState<number>(2541);
 	const [endYear, setEndYear] = useState<number>(2569);
@@ -283,6 +287,11 @@ const CAREPensionCalculator: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [isInitialized, setIsInitialized] = useState<boolean>(false);
 	const [showDetails, setShowDetails] = useState<boolean>(false);
+	const [showIndexSection, setShowIndexSection] = useState(false);
+
+	const toggleIndexSection = () => {
+		setShowIndexSection((prev) => !prev);
+	};
 
 
 	// Validate that the total months (m33 + m39) don't exceed 12
@@ -298,9 +307,7 @@ const CAREPensionCalculator: React.FC = () => {
 
 	// Handle month33 data changes with validation
 	const handleMonth33Change = (yr: string, value: string): void => {
-
 		const m33Value = parseInt(value, 10);
-
 		const m39Value = month39Data[yr] || 0;
 
 		if (validateMonthsTotal(yr, m33Value, m39Value)) {
@@ -335,23 +342,22 @@ const CAREPensionCalculator: React.FC = () => {
 		}
 	};
 
-	// Handle rate data input with validation
+	// Handle rate data input with validation - Modified to store as number
 	const handleRateDataChange = (yr: string, value: string): void => {
-		let newValue = value;
+		let floatValue = parseFloat(value);
 
-		// If the value is not empty, validate it
-		if (newValue !== "") {
-			const floatValue = parseFloat(newValue);
-
-			// Don't allow values less than 1
-			if (floatValue < 1) {
-				newValue = "1";
-			}
+		// If the value is not a valid number, default to 1
+		if (isNaN(floatValue)) {
+			floatValue = 1;
+		}
+		// Don't allow values less than 1
+		else if (floatValue < 1) {
+			floatValue = 1;
 		}
 
 		setRateData({
 			...rateData,
-			[yr]: newValue
+			[yr]: floatValue
 		});
 	};
 
@@ -383,9 +389,9 @@ const CAREPensionCalculator: React.FC = () => {
 			const newData: RateDataType = {};
 			years.forEach((yr) => {
 				if (staticData[yr] && (staticData[yr].i === null || parseInt(yr) >= 2568)) {
-					newData[yr] = prev[yr] !== undefined ? prev[yr] : "1.03";
+					newData[yr] = prev[yr] !== undefined ? prev[yr] : 1.03;
 				} else if (staticData[yr]) {
-					newData[yr] = prev[yr] !== undefined ? prev[yr] : (staticData[yr].i as number).toString();
+					newData[yr] = prev[yr] !== undefined ? prev[yr] : (staticData[yr].i as number);
 				}
 			});
 			return newData;
@@ -405,7 +411,6 @@ const CAREPensionCalculator: React.FC = () => {
 			const years = getYearArray(startYear, endYear);
 			if (startYear < 2541) {
 				throw new Error("ปีเริ่มต้นต้องไม่น้อยกว่า 2541");
-
 			}
 			if (endYear > 2580) {
 				throw new Error("ปีสุดท้ายต้องไม่เกิน 2580");
@@ -438,10 +443,10 @@ const CAREPensionCalculator: React.FC = () => {
 				}
 
 				if (parseInt(yr) >= 2568) {
-					if (isNaN(parseFloat(rateData[yr])) || parseFloat(rateData[yr]) <= 0) {
+					if (isNaN(rateData[yr]) || rateData[yr] <= 0) {
 						throw new Error(`ค่า i ไม่ถูกต้องสำหรับปี ${yr}`);
 					}
-					if (parseFloat(rateData[yr]) < 1) {
+					if (rateData[yr] < 1) {
 						throw new Error(`ค่า i สำหรับปี ${yr} ต้องมีค่าตั้งแต่ 1 ขึ้นไป`);
 					}
 				}
@@ -476,7 +481,6 @@ const CAREPensionCalculator: React.FC = () => {
 								className="w-full p-2 border rounded-l"
 								value={startYear}
 								onChange={(e) => setStartYear(parseInt(e.target.value))}
-
 								onBlur={(e) => {
 									const inputValue = e.target.value;
 									const parsedValue = parseInt(inputValue);
@@ -513,12 +517,6 @@ const CAREPensionCalculator: React.FC = () => {
 								min={2541}
 								max={2580}
 							/>
-							{/* <button
-								className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-r"
-								onClick={applyEndYear}
-							>
-								ตกลง
-							</button> */}
 						</div>
 					</label>
 				</div>
@@ -534,21 +532,21 @@ const CAREPensionCalculator: React.FC = () => {
 								<th className="p-2 border">ค่าจ้างเฉลี่ย P[t]</th>
 								<th className="p-2 border">เดือนที่ส่ง ม33 w33[t]</th>
 								<th className="p-2 border">เดือนที่ส่ง ม39 w39[t]</th>
-								<th className="p-2 border">ค่า index i[t]</th>
+								<th className="p-2 border">เพดานค่าจ้าง M(t)</th>
+								{/* Remove index column from main table */}
 							</tr>
 						</thead>
 						<tbody>
 							{getYearArray(startYear, endYear).map((yr) => (
 								<tr key={yr} className="hover:bg-gray-50">
 									<td className="p-2 border text-center">{yr}</td>
+				
 									<td className="p-2 border text-right">
-
 										<input
 											type="number"
 											className="w-full p-1 border rounded"
 											value={(moneyData[yr] || 0).toString()}
 											onChange={(e) =>
-
 												setMoneyData({
 													...moneyData,
 													[yr]: parseFloat(e.target.value),
@@ -557,28 +555,30 @@ const CAREPensionCalculator: React.FC = () => {
 											onBlur={(e) => {
 												const inputValue = e.target.value;
 												const parsedValue = parseFloat(inputValue);
-												if (!isNaN(parsedValue) && parsedValue >= 1650 && parsedValue <= staticData[yr].M) {
+												if (
+													!isNaN(parsedValue) &&
+													parsedValue >= 1650 &&
+													parsedValue <= staticData[yr].M
+												) {
 													setMoneyData({
 														...moneyData,
 														[yr]: parseFloat(e.target.value),
-													})
+													});
 												} else if (month33Data[yr] === 0) {
 													setMoneyData({
 														...moneyData,
 														[yr]: 0,
-													})
-												}
-												else if (parsedValue < 1650) {
+													});
+												} else if (parsedValue < 1650) {
 													setMoneyData({
 														...moneyData,
 														[yr]: 1650,
-													})
-
+													});
 												} else {
 													setMoneyData({
 														...moneyData,
 														[yr]: staticData[yr].M,
-													})
+													});
 												}
 											}}
 											min="1650"
@@ -587,32 +587,26 @@ const CAREPensionCalculator: React.FC = () => {
 											placeholder="กรอกค่าจ้างเฉลี่ย P[t]"
 											style={{ minWidth: '100px' }}
 										/>
-
 									</td>
 									<td className="p-2 border">
 										<input
 											type="number"
 											className="w-full p-1 border rounded"
-											value={(month33Data[yr] || 0).toString() }
-											onChange={(e) =>
-												handleMonth33Change(yr, e.target.value)
-											}
+											value={(month33Data[yr] || 0).toString()}
+											onChange={(e) => handleMonth33Change(yr, e.target.value)}
 											min="0"
 											max="12"
 											step="1"
 											inputMode="numeric"
 											style={{ minWidth: '50px' }}
 										/>
-
 									</td>
 									<td className="p-2 border">
 										<input
 											type="number"
 											className="w-full p-1 border rounded"
 											value={(month39Data[yr] || 0).toString()}
-											onChange={(e) =>
-												handleMonth39Change(yr, e.target.value)
-											}
+											onChange={(e) => handleMonth39Change(yr, e.target.value)}
 											min="0"
 											max="12"
 											step="1"
@@ -620,28 +614,60 @@ const CAREPensionCalculator: React.FC = () => {
 											style={{ minWidth: '50px' }}
 										/>
 									</td>
-									<td className="p-2 border">
-										{(staticData[yr] && staticData[yr].i !== null && parseInt(yr) < 2568) ? (
-											<span>{staticData[yr].i.toFixed(2)}</span>
-										) : (
-											<input
-												type="number"
-												step="0.001"
-												className="w-full p-1 border rounded"
-												value={rateData[yr] || ""}
-												onChange={(e) => handleRateDataChange(yr, e.target.value)}
-												min="1"
-												placeholder="Enter i (≥ 1)"
-												inputMode="numeric"
-											/>
-										)}
-									</td>
+									<td className="p-2 border text-center">{staticData[yr].M}</td>
 								</tr>
 							))}
 						</tbody>
 					</table>
 				</div>
 			</div>
+			<button
+				className="text-blue-600 hover:text-blue-800 font-medium mb-2 flex items-center"
+				onClick={toggleIndexSection}
+			>
+				{showIndexSection ? 'ซ่อนข้อมูล Index ▲' : 'แสดงข้อมูล Index ▼'}
+			</button>
+
+
+			{showIndexSection && (
+				<div className="mt-4 bg-gray-50 p-4 rounded-lg border border-gray-300">
+					<h3 className="text-lg font-semibold mb-3">ข้อมูล Index (i[t])</h3>
+					<div className="overflow-x-auto">
+						<table className="w-full border-collapse border border-gray-300 text-sm">
+							<thead className="bg-gray-100">
+								<tr>
+									<th className="p-2 border">ปี พ.ศ.</th>
+									<th className="p-2 border">ค่า index i[t]</th>
+								</tr>
+							</thead>
+							<tbody>
+								{getYearArray(startYear, endYear).map((yr) => (
+									<tr key={yr} className="hover:bg-gray-50">
+										<td className="p-2 border text-center">{yr}</td>
+										<td className="p-2 border">
+											{(staticData[yr] && staticData[yr].i !== null && parseInt(yr) < 2568) ? (
+												<span>{staticData[yr].i.toFixed(2)}</span>
+											) : (
+												<input
+													type="number"
+													step="0.01"
+													className="w-full p-1 border rounded"
+													value={rateData[yr] || 1}
+													onChange={(e) => handleRateDataChange(yr, e.target.value)}
+													min="1"
+													placeholder="Enter i (≥ 1)"
+													inputMode="numeric"
+												/>
+											)}
+										</td>
+									</tr>
+								))}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			)}
+
 
 			<button
 				className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full mb-4"
@@ -655,7 +681,6 @@ const CAREPensionCalculator: React.FC = () => {
 					<strong>Error:</strong> {error}
 				</div>
 			)}
-
 			{result && (
 				<div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
