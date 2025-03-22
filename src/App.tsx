@@ -6,6 +6,7 @@ interface YearData {
 	C: number;
 	M: number;
 	i: number | null;
+	compensate: number;
 }
 
 interface StaticDataType {
@@ -25,6 +26,10 @@ interface RateDataType {
 	[year: string]: number;
 }
 
+interface CompensateDataType {
+	[year: string]: number;
+}
+
 interface CalculationResult {
 	ReValue33: { [year: string]: number };
 	AdjustedAmount33: { [year: string]: number };
@@ -37,50 +42,53 @@ interface CalculationResult {
 	finalCombinedAmount: number;
 	pensionPercentage: number;
 	pensionAmount: number;
+	oldPensionAmount: number;
+	compensatedPension: number;
 	years: string[];
 }
 
+
 const staticData: StaticDataType = {
-	"2541": { C: 16250, M: 15000, i: 1 },
-	"2542": { C: 16250, M: 15000, i: 1 },
-	"2543": { C: 16250, M: 15000, i: 1.013532473 },
-	"2544": { C: 16250, M: 15000, i: 1.002681959 },
-	"2545": { C: 16250, M: 15000, i: 1.00730799 },
-	"2546": { C: 16250, M: 15000, i: 1.012950052 },
-	"2547": { C: 16250, M: 15000, i: 1.038295942 },
-	"2548": { C: 16250, M: 15000, i: 1.040860045 },
-	"2549": { C: 16250, M: 15000, i: 1.032125791 },
-	"2550": { C: 16250, M: 15000, i: 1.036936017 },
-	"2551": { C: 16250, M: 15000, i: 1.037769939 },
-	"2552": { C: 16250, M: 15000, i: 1.016085747 },
-	"2553": { C: 16250, M: 15000, i: 1.02656197 },
-	"2554": { C: 16250, M: 15000, i: 1.119890167 },
-	"2555": { C: 16250, M: 15000, i: 1.095356487 },
-	"2556": { C: 16250, M: 15000, i: 1.022665963 },
-	"2557": { C: 16250, M: 15000, i: 1.014171773 },
-	"2558": { C: 16250, M: 15000, i: 1.033584114 },
-	"2559": { C: 16250, M: 15000, i: 1.021008643 },
-	"2560": { C: 16250, M: 15000, i: 1.011972516 },
-	"2561": { C: 16250, M: 15000, i: 1.014638193 },
-	"2562": { C: 16250, M: 15000, i: 1.00656399 },
-	"2563": { C: 16250, M: 15000, i: 1.021598019 },
-	"2564": { C: 16250, M: 15000, i: 1.012048193 },
-	"2565": { C: 16250, M: 15000, i: 1.01207483 },
-	"2566": { C: 16250, M: 15000, i: 1.023273399 },
-	"2567": { C: 16250, M: 15000, i: 1.043889845 },
-	"2568": { C: 16250, M: 15000, i: null },
-	"2569": { C: 17500, M: 17500, i: null },
-	"2570": { C: 17500, M: 17500, i: null },
-	"2571": { C: 17500, M: 17500, i: null },
-	"2572": { C: 20000, M: 20000, i: null },
-	"2573": { C: 20000, M: 20000, i: null },
-	"2574": { C: 20000, M: 20000, i: null },
-	"2575": { C: 23000, M: 23000, i: null },
-	"2576": { C: 23000, M: 23000, i: null },
-	"2577": { C: 23000, M: 23000, i: null },
-	"2578": { C: 23000, M: 23000, i: null },
-	"2579": { C: 23000, M: 23000, i: null },
-	"2580": { C: 23000, M: 23000, i: null },
+	"2541": { C: 16250, M: 15000, i: 1, compensate: 100 },
+	"2542": { C: 16250, M: 15000, i: 1.019122519, compensate: 100 },
+	"2543": { C: 16250, M: 15000, i: 1, compensate: 100 },
+	"2544": { C: 16250, M: 15000, i: 1.011890167, compensate: 100 },
+	"2545": { C: 16250, M: 15000, i: 1.002681959, compensate: 100 },
+	"2546": { C: 16250, M: 15000, i: 1.003685355, compensate: 100 },
+	"2547": { C: 16250, M: 15000, i: 1.01863354, compensate: 100 },
+	"2548": { C: 16250, M: 15000, i: 1.033536585, compensate: 100 },
+	"2549": { C: 16250, M: 15000, i: 1.050147493, compensate: 100 },
+	"2550": { C: 16250, M: 15000, i: 1.030898876, compensate: 100 },
+	"2551": { C: 16250, M: 15000, i: 1.035422343, compensate: 100 },
+	"2552": { C: 16250, M: 15000, i: 1.039473684, compensate: 100 },
+	"2553": { C: 16250, M: 15000, i: 1.016455696, compensate: 100 },
+	"2554": { C: 16250, M: 15000, i: 1.02117061, compensate: 100 },
+	"2555": { C: 16250, M: 15000, i: 1.159756098, compensate: 100 },
+	"2556": { C: 16250, M: 15000, i: 1.069821241, compensate: 100 },
+	"2557": { C: 16250, M: 15000, i: 1.030076666, compensate: 100 },
+	"2558": { C: 16250, M: 15000, i: 1.020038168, compensate: 100 },
+	"2559": { C: 16250, M: 15000, i: 1.01777362, compensate: 100 },
+	"2560": { C: 16250, M: 15000, i: 1.018382353, compensate: 100 },
+	"2561": { C: 16250, M: 15000, i: 1.013537906, compensate: 100 },
+	"2562": { C: 16250, M: 15000, i: 1.011576135, compensate: 100 },
+	"2563": { C: 16250, M: 15000, i: 1.013204225, compensate: 100 },
+	"2564": { C: 16250, M: 15000, i: 1.007819288, compensate: 100 },
+	"2565": { C: 16250, M: 15000, i: 1.007758621, compensate: 100 },
+	"2566": { C: 16250, M: 15000, i: 1.020530368, compensate: 100 },
+	"2567": { C: 16250, M: 15000, i: 1.015088013, compensate: 100 },
+	"2568": { C: 16250, M: 15000, i: null, compensate: 100 },
+	"2569": { C: 17500, M: 17500, i: null, compensate: 100 },
+	"2570": { C: 17500, M: 17500, i: null, compensate: 80 },
+	"2571": { C: 17500, M: 17500, i: null, compensate: 60 },
+	"2572": { C: 20000, M: 20000, i: null, compensate: 40 },
+	"2573": { C: 20000, M: 20000, i: null, compensate: 20 },
+	"2574": { C: 20000, M: 20000, i: null, compensate: 0 },
+	"2575": { C: 23000, M: 23000, i: null, compensate: 0 },
+	"2576": { C: 23000, M: 23000, i: null, compensate: 0 },
+	"2577": { C: 23000, M: 23000, i: null, compensate: 0 },
+	"2578": { C: 23000, M: 23000, i: null, compensate: 0 },
+	"2579": { C: 23000, M: 23000, i: null, compensate: 0 },
+	"2580": { C: 23000, M: 23000, i: null, compensate: 0 },
 };
 
 const getYearArray = (start: number, end: number): string[] => {
@@ -141,7 +149,8 @@ const calculateCARE = (
 	moneyData: MoneyDataType,
 	month33Data: MonthDataType,
 	month39Data: MonthDataType,
-	rateData: RateDataType
+	rateData: RateDataType,
+	conpensate: CompensateDataType
 ): CalculationResult => {
 	const years = getYearArray(startYear, endYear);
 	const n = years.length;
@@ -255,6 +264,12 @@ const calculateCARE = (
 	}
 	const pensionAmount = pensionPercentage * finalCombinedAmount;
 
+	const oldFinalCombinedAmount = calculateOldFormula(startYear, endYear, moneyData, month33Data, month39Data, dataOverride);
+	const oldPensionAmount = pensionPercentage * oldFinalCombinedAmount;
+	const compensatedPension = pensionAmount + Math.max(oldPensionAmount - pensionAmount, 0) * conpensate[T] / 100
+
+	console.log(compensatedPension);
+
 	return {
 		ReValue33,
 		AdjustedAmount33,
@@ -267,9 +282,72 @@ const calculateCARE = (
 		finalCombinedAmount,
 		pensionPercentage,
 		pensionAmount,
+		oldPensionAmount,
+		compensatedPension,
 		years,
 	};
 };
+
+const calculateOldFormula = (
+	startYear: number,
+	endYear: number,
+	moneyData: MoneyDataType,
+	month33Data: MonthDataType,
+	month39Data: MonthDataType,
+	dataOverride: { [key: string]: YearData }
+): number => {
+
+	const oldMonth: number[] = [];
+	const avgMoney: number[] = [];
+	let totalMonth = 0;
+	let year = endYear;
+
+	while (totalMonth < 60) {
+		// Convert year to string since our objects are indexed by string keys
+		const yearKey = year.toString();
+
+		// Get the values or assume 0 if not available
+		const value33 = month33Data[yearKey] || 0;
+		const value39 = month39Data[yearKey] || 0;
+		const sumForYear = value33 + value39;
+
+		const money39 = calculateM39Ceiling(yearKey, dataOverride);
+		const money33 = moneyData[yearKey] || 0;
+		if (sumForYear > 0) {
+			avgMoney.push((value33 * money33 + value39 * money39) / sumForYear)
+		} else {
+			avgMoney.push(0)
+		}
+
+		// Add the values to the running total and store the year in the list.
+		totalMonth += sumForYear;
+		if (totalMonth >= 60) {
+			oldMonth.push(totalMonth - 60);
+		} else {
+			oldMonth.push(sumForYear);
+		}
+		// Move to the previous year
+		year--;
+		// Stop if year becomes negative (or some reasonable lower bound if needed)
+		if (year < startYear) {
+			break;
+		}
+	}
+	if (oldMonth.length !== avgMoney.length) {
+		throw new Error("Arrays must be of the same length");
+	}
+	let weightedSum = 0;
+	let weightTotal = 0;
+
+	for (let i = 0; i < oldMonth.length; i++) {
+		weightedSum += avgMoney[i] * oldMonth[i];
+		weightTotal += oldMonth[i];
+	}
+	return weightTotal !== 0 ? weightedSum / weightTotal : 0;
+
+
+
+}
 
 function formatNumber(num: number): string {
 	return num.toLocaleString('en-IN', { maximumFractionDigits: 0, minimumFractionDigits: 0 });
@@ -283,6 +361,7 @@ const CAREPensionCalculator: React.FC = () => {
 	const [month33Data, setMonth33Data] = useState<MonthDataType>({});
 	const [month39Data, setMonth39Data] = useState<MonthDataType>({});
 	const [rateData, setRateData] = useState<RateDataType>({});
+	const [conpensate, setCompensate] = useState<CompensateDataType>({});
 	const [result, setResult] = useState<CalculationResult | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [isInitialized, setIsInitialized] = useState<boolean>(false);
@@ -361,6 +440,24 @@ const CAREPensionCalculator: React.FC = () => {
 		});
 	};
 
+	const handleRCompensateDataChange = (yr: string, value: string): void => {
+		let floatValue = parseFloat(value);
+
+		// If the value is not a valid number, default to 1
+		if (isNaN(floatValue)) {
+			floatValue = 1;
+		}
+		// Don't allow values less than 1
+		else if (floatValue < 1) {
+			floatValue = 1;
+		}
+
+		setCompensate({
+			...conpensate,
+			[yr]: floatValue
+		});
+	};
+
 	// Initialize data for the years range
 	const initializeYearData = (start: number, end: number): void => {
 		const years = getYearArray(start, end);
@@ -392,6 +489,15 @@ const CAREPensionCalculator: React.FC = () => {
 					newData[yr] = prev[yr] !== undefined ? prev[yr] : 1.03;
 				} else if (staticData[yr]) {
 					newData[yr] = prev[yr] !== undefined ? prev[yr] : (staticData[yr].i as number);
+				}
+			});
+			return newData;
+		});
+		setCompensate((prev) => {
+			const newData: CompensateDataType = {};
+			years.forEach((yr) => {
+				if (staticData[yr]) {
+					newData[yr] = prev[yr] !== undefined ? prev[yr] : (staticData[yr].compensate as number);
 				}
 			});
 			return newData;
@@ -451,7 +557,7 @@ const CAREPensionCalculator: React.FC = () => {
 					}
 				}
 			}
-			const calcResult = calculateCARE(startYear, endYear, moneyData, month33Data, month39Data, rateData);
+			const calcResult = calculateCARE(startYear, endYear, moneyData, month33Data, month39Data, rateData, conpensate);
 			setResult(calcResult);
 		} catch (err) {
 			if (err instanceof Error) {
@@ -540,7 +646,7 @@ const CAREPensionCalculator: React.FC = () => {
 							{getYearArray(startYear, endYear).map((yr) => (
 								<tr key={yr} className="hover:bg-gray-50">
 									<td className="p-2 border text-center">{yr}</td>
-				
+
 									<td className="p-2 border text-right">
 										<input
 											type="number"
@@ -625,7 +731,7 @@ const CAREPensionCalculator: React.FC = () => {
 				className="text-blue-600 hover:text-blue-800 font-medium mb-2 flex items-center"
 				onClick={toggleIndexSection}
 			>
-				{showIndexSection ? 'ซ่อนข้อมูล Index ▲' : 'แสดงข้อมูล Index ▼'}
+				{showIndexSection ? 'ซ่อนข้อมูล Index และการชดเฉย ▲' : 'แสดงข้อมูล Index และการชดเฉย ▼'}
 			</button>
 
 
@@ -638,6 +744,7 @@ const CAREPensionCalculator: React.FC = () => {
 								<tr>
 									<th className="p-2 border">ปี พ.ศ.</th>
 									<th className="p-2 border">ค่า index i[t]</th>
+									<th className="p-2 border">นโยบายชดเฉยบำนาญ</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -645,7 +752,8 @@ const CAREPensionCalculator: React.FC = () => {
 									<tr key={yr} className="hover:bg-gray-50">
 										<td className="p-2 border text-center">{yr}</td>
 										<td className="p-2 border">
-											{(staticData[yr] && staticData[yr].i !== null && parseInt(yr) < 2568) ? (
+											{/* Change 2581 to let user input thenself*/}
+											{(staticData[yr] && staticData[yr].i !== null && parseInt(yr) <= 2567) ? (
 												<span>{staticData[yr].i.toFixed(2)}</span>
 											) : (
 												<input
@@ -656,6 +764,21 @@ const CAREPensionCalculator: React.FC = () => {
 													onChange={(e) => handleRateDataChange(yr, e.target.value)}
 													min="1"
 													placeholder="Enter i (≥ 1)"
+													inputMode="numeric"
+												/>
+											)}
+										</td>
+										<td className="p-2 border">
+											{(staticData[yr] && staticData[yr].compensate !== null && parseInt(yr) < 2581) ? (
+												<span>{staticData[yr].compensate.toFixed(0)}%</span>
+											) : (
+												<input
+													type="number"
+													step="10"
+													className="w-full p-1 border rounded"
+													value={conpensate[yr] || 1}
+													onChange={(e) => handleRCompensateDataChange(yr, e.target.value)}
+													min="0"
 													inputMode="numeric"
 												/>
 											)}
@@ -695,9 +818,9 @@ const CAREPensionCalculator: React.FC = () => {
 							<p className="text-sm text-gray-600">จำนวนเดือนสะสมทั้งหมด: {result.totalCumMonths[result.years[result.years.length - 1]]}</p>
 						</div>
 						<div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-							<h3 className="text-lg font-medium text-gray-700 mb-2">จำนวนเงินบำนาญ</h3>
-							<p className="text-2xl font-bold text-purple-800">{formatNumber(result.pensionAmount)} บาท</p>
-							<p className="text-sm text-gray-600">*ค่าที่แสดงยังไม่ได้คิดชดเฉยช่วงเปลี่ยนผ่าน</p>
+							<h3 className="text-lg font-medium text-gray-700 mb-2">จำนวนเงินบำนาญที่ปีสิทธิ {endYear}</h3>
+							<p className="text-2xl font-bold text-purple-800">{formatNumber(result.compensatedPension)} บาท</p>
+							<p className="text-sm text-gray-600">*ก่อนชดเฉยจะได้ {formatNumber(result.pensionAmount)} บาท (ชดเฉย {conpensate[endYear]}%)</p>
 						</div>
 					</div>
 
