@@ -731,7 +731,7 @@ const CAREPensionCalculator: React.FC = () => {
 				className="text-blue-600 hover:text-blue-800 font-medium mb-2 flex items-center"
 				onClick={toggleIndexSection}
 			>
-				{showIndexSection ? 'ซ่อนข้อมูล Index และการชดเฉย ▲' : 'แสดงข้อมูล Index และการชดเฉย ▼'}
+				{showIndexSection ? 'ซ่อนข้อมูล Index และการชดเชย ▲' : 'แสดงข้อมูล Index และการชดเชย ▼'}
 			</button>
 
 
@@ -744,7 +744,7 @@ const CAREPensionCalculator: React.FC = () => {
 								<tr>
 									<th className="p-2 border">ปี พ.ศ.</th>
 									<th className="p-2 border">ค่า index i[t]</th>
-									<th className="p-2 border">นโยบายชดเฉยบำนาญ</th>
+									<th className="p-2 border">นโยบายชดเชยบำนาญ</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -820,7 +820,7 @@ const CAREPensionCalculator: React.FC = () => {
 						<div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
 							<h3 className="text-lg font-medium text-gray-700 mb-2">จำนวนเงินบำนาญที่ปีสิทธิ {endYear}</h3>
 							<p className="text-2xl font-bold text-purple-800">{formatNumber(result.compensatedPension)} บาท</p>
-							<p className="text-sm text-gray-600">*ก่อนชดเชยจะได้ {formatNumber(result.pensionAmount)} บาท (ชดเฉย {conpensate[endYear]}%)</p>
+							<p className="text-sm text-gray-600">*ก่อนชดเชยจะได้ {formatNumber(result.pensionAmount)} บาท (ชดเชย {conpensate[endYear]}%)</p>
 						</div>
 					</div>
 
