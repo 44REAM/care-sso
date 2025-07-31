@@ -183,6 +183,9 @@ function calculateSystemFAE(
 	for (let i = start; i <= idx; i++) {
 		const y = years[i]
 		const entry = staticData[y]
+		if (entry.i == null){
+			throw new Error(`กรุณากรอกค่า i สำหรับปี ${y}`);
+		}
 		sum += entry.i
 		sumMax += entry.M
 		count++
@@ -207,6 +210,9 @@ function multiplyByYearFactors(
 		const row = data[year]
 		const factor = factors[year]
 		// If there's no factor for this year, just copy the original row
+		if (factor.i == null){
+			throw new Error(`กรุณากรอกค่า i สำหรับปี ${year}`);
+		}
 		result[year] = row / factor.i;
 
 	}
