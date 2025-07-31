@@ -340,11 +340,7 @@ const CAREPensionCalculator: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [isInitialized, setIsInitialized] = useState<boolean>(false);
 	const [showDetails, setShowDetails] = useState<boolean>(false);
-	const [showIndexSection, setShowIndexSection] = useState(false);
 
-	const toggleIndexSection = () => {
-		setShowIndexSection((prev) => !prev);
-	};
 
 
 	// Validate that the total months (m33 + m39) don't exceed 12
@@ -379,44 +375,6 @@ const CAREPensionCalculator: React.FC = () => {
 				[yr]: 1650,
 			})
 		}
-	};
-
-
-	// Handle rate data input with validation - Modified to store as number
-	const handleRateDataChange = (yr: string, value: string): void => {
-		let floatValue = parseFloat(value);
-
-		// If the value is not a valid number, default to 1
-		if (isNaN(floatValue)) {
-			floatValue = 1;
-		}
-		// Don't allow values less than 1
-		else if (floatValue < 1) {
-			floatValue = 1;
-		}
-
-		setRateData({
-			...rateData,
-			[yr]: floatValue
-		});
-	};
-
-	const handleRCompensateDataChange = (yr: string, value: string): void => {
-		let floatValue = parseFloat(value);
-
-		// If the value is not a valid number, default to 1
-		if (isNaN(floatValue)) {
-			floatValue = 1;
-		}
-		// Don't allow values less than 1
-		else if (floatValue < 1) {
-			floatValue = 1;
-		}
-
-		setCompensate({
-			...conpensate,
-			[yr]: floatValue
-		});
 	};
 
 	// Initialize data for the years range
@@ -664,70 +622,6 @@ const CAREPensionCalculator: React.FC = () => {
 					</table>
 				</div>
 			</div>
-			<button
-				className="text-blue-600 hover:text-blue-800 font-medium mb-2 flex items-center"
-				onClick={toggleIndexSection}
-			>
-				{showIndexSection ? 'ซ่อนข้อมูล Index และการชดเชย ▲' : 'แสดงข้อมูล Index และการชดเชย ▼'}
-			</button>
-
-
-			{showIndexSection && (
-				<div className="mt-4 bg-gray-50 p-4 rounded-lg border border-gray-300">
-					<h3 className="text-lg font-semibold mb-3">ข้อมูล Index (i[t])</h3>
-					<div className="overflow-x-auto">
-						<table className="w-full border-collapse border border-gray-300 text-sm">
-							<thead className="bg-gray-100">
-								<tr>
-									<th className="p-2 border">ปี พ.ศ.</th>
-									<th className="p-2 border">ค่า index i[t]</th>
-									<th className="p-2 border">นโยบายชดเชยบำนาญ</th>
-								</tr>
-							</thead>
-							<tbody>
-								{getYearArray(startYear, endYear).map((yr) => (
-									<tr key={yr} className="hover:bg-gray-50">
-										<td className="p-2 border text-center">{yr}</td>
-										<td className="p-2 border">
-											{/* Change 2581 to let user input thenself*/}
-											{(staticData[yr] && staticData[yr].i !== null && parseInt(yr) <= 2567) ? (
-												<span>{staticData[yr].i.toFixed(2)}</span>
-											) : (
-												<input
-													type="number"
-													step="0.01"
-													className="w-full p-1 border rounded"
-													value={rateData[yr] || 1}
-													onChange={(e) => handleRateDataChange(yr, e.target.value)}
-													min="1"
-													placeholder="Enter i (≥ 1)"
-													inputMode="numeric"
-												/>
-											)}
-										</td>
-										<td className="p-2 border">
-											{(staticData[yr] && staticData[yr].compensate !== null && parseInt(yr) < 2581) ? (
-												<span>{staticData[yr].compensate.toFixed(0)}%</span>
-											) : (
-												<input
-													type="number"
-													step="10"
-													className="w-full p-1 border rounded"
-													value={conpensate[yr] || 1}
-													onChange={(e) => handleRCompensateDataChange(yr, e.target.value)}
-													min="0"
-													inputMode="numeric"
-												/>
-											)}
-										</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
-					</div>
-				</div>
-			)}
-
 
 			<button
 				className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full mb-4"
