@@ -36,7 +36,7 @@ interface CompensateDataType {
 interface CalculationResult {
 	ReValue33: { [year: string]: number };
 	totalCumMonths: { [year: string]: number };
-	combinedAdjustedAmount: { [year: string]: number };
+	systemAvg: { [year: string]: number };
 	finalCombinedAmount: number;
 	pensionPercentage: number;
 	pensionAmount: number;
@@ -296,13 +296,24 @@ const calculateCARE = (
 	const pensionAmount = CARE*pensionPercentage
 	const oldPensionAmount = pensionPercentage * oldFinalCombinedAmount;
 	const compensatedPension = pensionAmount + Math.max(oldPensionAmount - pensionAmount, 0) * conpensate[years[years.length - 1]] / 100
+	const systemAvg = years.reduce(
+		(acc, year) => {
+		  const entry = staticData[year];
+		  if (entry && entry.i !== null) {
+			acc[year] = entry.i;  // now TS knows `.i` is a `number`
+		  }
+		  return acc;
+		},
+		{} as MoneyDataType
+	  );
+	  console.log(systemAvg)
 	// console.log(oldFinalCombinedAmount)
 	// console.log(avgPP, systemFAE, calculatedCARE, CARE, pensionPercentage);
 
 	return {
 		ReValue33: pp,
 		totalCumMonths: cumMonth,
-		combinedAdjustedAmount: pp,
+		systemAvg: systemAvg,
 		finalCombinedAmount: CARE,
 		pensionPercentage: pensionPercentage,
 		pensionAmount: pensionAmount,
@@ -764,6 +775,7 @@ const CAREPensionCalculator: React.FC = () => {
 								<thead className="bg-gray-100">
 									<tr>
 										<th className="p-2 border">ปี</th>
+										<th className="p-2 border">ค่าจ้างเฉลี่ยม.33</th>
 										<th className="p-2 border">Pension Point</th>
 										<th className="p-2 border">จำนวนเดือนสะสม</th>
 									</tr>
@@ -772,6 +784,7 @@ const CAREPensionCalculator: React.FC = () => {
 									{result.years.map((yr) => (
 										<tr key={yr} className="hover:bg-gray-50">
 											<td className="p-2 border text-center">{yr}</td>
+											<td className="p-2 border text-right">{result.systemAvg[yr].toFixed(2)}</td>
 											<td className="p-2 border text-right">{result.ReValue33[yr].toFixed(2)}</td>
 											<td className="p-2 border text-right">{result.totalCumMonths[yr]}</td>
 										</tr>
