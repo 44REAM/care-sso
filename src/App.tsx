@@ -46,48 +46,71 @@ interface CalculationResult {
 }
 
 
-const staticData: StaticDataType = {
-	"2541": { M: 15000, i: 6346.139723, compensate: 100 },
-	"2542": { M: 15000, i: 6350.60594, compensate: 100 },
-	"2543": { M: 15000, i: 6341.846618, compensate: 100 },
-	"2544": { M: 15000, i: 6429.873092, compensate: 100 },
-	"2545": { M: 15000, i: 6455.538628, compensate: 100 },
-	"2546": { M: 15000, i: 6505.509517, compensate: 100 },
-	"2547": { M: 15000, i: 6634.378432, compensate: 100 },
-	"2548": { M: 15000, i: 6884.349202, compensate: 100 },
-	"2549": { M: 15000, i: 7168.80093, compensate: 100 },
-	"2550": { M: 15000, i: 7407.968684, compensate: 100 },
-	"2551": { M: 15000, i: 7734.514019, compensate: 100 },
-	"2552": { M: 15000, i: 7959.639781, compensate: 100 },
-	"2553": { M: 15000, i: 8106.109708, compensate: 100 },
-	"2554": { M: 15000, i: 8468.189411, compensate: 100 },
-	"2555": { M: 15000, i: 9491.804267, compensate: 100 },
-	"2556": { M: 15000, i: 10274.200081, compensate: 100 },
-	"2557": { M: 15000, i: 10555.369553, compensate: 100 },
-	"2558": { M: 15000, i: 10762.094766, compensate: 100 },
-	"2559": { M: 15000, i: 10919.627747, compensate: 100 },
-	"2560": { M: 15000, i: 11127.955886, compensate: 100 },
-	"2561": { M: 15000, i: 11245.14181, compensate: 100 },
-	"2562": { M: 15000, i: 11391.147582, compensate: 100 },
-	"2563": { M: 15000, i: 11473.296854, compensate: 100 },
-	"2564": { M: 15000, i: 11584.696478, compensate: 100 },
-	"2565": { M: 15000, i: 11750.943529, compensate: 100 },
-	"2566": { M: 15000, i: 11944.164759, compensate: 100 },
-	"2567": { M: 15000, i: 12133.248417, compensate: 100 },
-	"2568": { M: 15000, i: 12497.24587, compensate: 100 },
-	"2569": { M: 17500, i: 13372.053081, compensate: 100 },
-	"2570": { M: 17500, i: 13906.935204, compensate: 80 },
-	"2571": { M: 17500, i: 14602.281964, compensate: 60 },
-	"2572": { M: 20000, i: 15478.418882, compensate: 40 },
-	"2573": { M: 20000, i: 16097.555637, compensate: 20 },
-	"2574": { M: 20000, i: 16741.457863, compensate: 0 },
-	"2575": { M: 23000, i: 17411.116177, compensate: 0 },
-	"2576": { M: 23000, i: 18281.671986, compensate: 0 },
-	"2577": { M: 23000, i: 19012.938866, compensate: 0 }
+const minYear = 2541;
+const maxYear = 2610;
+
+const generateStaticData = (): StaticDataType => {
+	const baseData: StaticDataType = {
+		"2541": { M: 15000, i: 6346.139723, compensate: 100 },
+		"2542": { M: 15000, i: 6350.60594, compensate: 100 },
+		"2543": { M: 15000, i: 6341.846618, compensate: 100 },
+		"2544": { M: 15000, i: 6429.873092, compensate: 100 },
+		"2545": { M: 15000, i: 6455.538628, compensate: 100 },
+		"2546": { M: 15000, i: 6505.509517, compensate: 100 },
+		"2547": { M: 15000, i: 6634.378432, compensate: 100 },
+		"2548": { M: 15000, i: 6884.349202, compensate: 100 },
+		"2549": { M: 15000, i: 7168.80093, compensate: 100 },
+		"2550": { M: 15000, i: 7407.968684, compensate: 100 },
+		"2551": { M: 15000, i: 7734.514019, compensate: 100 },
+		"2552": { M: 15000, i: 7959.639781, compensate: 100 },
+		"2553": { M: 15000, i: 8106.109708, compensate: 100 },
+		"2554": { M: 15000, i: 8468.189411, compensate: 100 },
+		"2555": { M: 15000, i: 9491.804267, compensate: 100 },
+		"2556": { M: 15000, i: 10274.200081, compensate: 100 },
+		"2557": { M: 15000, i: 10555.369553, compensate: 100 },
+		"2558": { M: 15000, i: 10762.094766, compensate: 100 },
+		"2559": { M: 15000, i: 10919.627747, compensate: 100 },
+		"2560": { M: 15000, i: 11127.955886, compensate: 100 },
+		"2561": { M: 15000, i: 11245.14181, compensate: 100 },
+		"2562": { M: 15000, i: 11391.147582, compensate: 100 },
+		"2563": { M: 15000, i: 11473.296854, compensate: 100 },
+		"2564": { M: 15000, i: 11584.696478, compensate: 100 },
+		"2565": { M: 15000, i: 11750.943529, compensate: 100 },
+		"2566": { M: 15000, i: 11944.164759, compensate: 100 },
+		"2567": { M: 15000, i: 12133.248417, compensate: 100 },
+		"2568": { M: 15000, i: 12497.24587, compensate: 100 },
+		"2569": { M: 17500, i: 13372.053081, compensate: 100 },
+		"2570": { M: 17500, i: 13906.935204, compensate: 80 },
+		"2571": { M: 17500, i: 14602.281964, compensate: 60 },
+		"2572": { M: 20000, i: 15478.418882, compensate: 40 },
+		"2573": { M: 20000, i: 16097.555637, compensate: 20 },
+		"2574": { M: 20000, i: 16741.457863, compensate: 0 },
+		"2575": { M: 23000, i: 17411.116177, compensate: 0 },
+		"2576": { M: 23000, i: 18281.671986, compensate: 0 },
+		"2577": { M: 23000, i: 19012.938866, compensate: 0 }
+	};
+
+	const lastYear = 2577;
+	const lastData = baseData["2577"];
+	let currentM = lastData.M;
+	let currentI = lastData.i;
+
+	for (let year = lastYear + 1; year <= maxYear; year++) {
+		currentM = Math.round(currentM * 1.04);
+
+		if (currentI == null) throw new Error(`กรุณากรอกค่า i สำหรับปี ${year}`);
+		currentI = currentI * 1.04;
+		baseData[year.toString()] = {
+			M: currentM,
+			i: currentI,
+			compensate: 0
+		};
+	}
+
+	return baseData;
 };
 
-const minYear = 2541;
-const maxYear = 2577;
+const staticData: StaticDataType = generateStaticData();
 
 
 const getYearArray = (start: number, end: number): string[] => {
@@ -295,6 +318,7 @@ const calculateCARE = (
 	}
 	const pensionAmount = CARE*pensionPercentage
 	const oldPensionAmount = pensionPercentage * oldFinalCombinedAmount;
+
 	const compensatedPension = pensionAmount + Math.max(oldPensionAmount - pensionAmount, 0) * conpensate[years[years.length - 1]] / 100
 	const systemAvg = years.reduce(
 		(acc, year) => {
@@ -306,9 +330,6 @@ const calculateCARE = (
 		},
 		{} as MoneyDataType
 	  );
-	  console.log(systemAvg)
-	// console.log(oldFinalCombinedAmount)
-	// console.log(avgPP, systemFAE, calculatedCARE, CARE, pensionPercentage);
 
 	return {
 		ReValue33: pp,
@@ -343,37 +364,21 @@ const CAREPensionCalculator: React.FC = () => {
 
 
 
-	// Validate that the total months (m33 + m39) don't exceed 12
-	const validateMonthsTotal = (yr: string, m33Value: number): boolean => {
-		const total = parseFloat(m33Value.toString());
-		if (total > 12) {
-			setError(`จำนวนเดือนรวม (ม.33 + ม.39) สำหรับปี ${yr} ต้องไม่เกิน 12 เดือน`);
-			return false;
-		}
-		setError(null);
-		return true;
-	};
-
-	// Handle month33 data changes with validation
 	const handleMonth33Change = (yr: string, value: string): void => {
-		const m33Value = parseInt(value, 10);
-
-		if (validateMonthsTotal(yr, m33Value)) {
-			setMonth33Data({
-				...month33Data,
-				[yr]: m33Value,
-			});
+		const m33Value = parseInt(value, 10) || 0;
+		
+		if (m33Value > 12) {
+			setError(`จำนวนเดือนรวม (ม.33 + ม.39) สำหรับปี ${yr} ต้องไม่เกิน 12 เดือน`);
+			return;
 		}
+		
+		setError(null);
+		setMonth33Data(prev => ({ ...prev, [yr]: m33Value }));
+		
 		if (m33Value === 0) {
-			setMoneyData({
-				...moneyData,
-				[yr]: 0,
-			})
+			setMoneyData(prev => ({ ...prev, [yr]: 0 }));
 		} else if (m33Value > 0 && moneyData[yr] <= 0) {
-			setMoneyData({
-				...moneyData,
-				[yr]: 1650,
-			})
+			setMoneyData(prev => ({ ...prev, [yr]: 1650 }));
 		}
 	};
 
@@ -398,9 +403,7 @@ const CAREPensionCalculator: React.FC = () => {
 		setRateData((prev) => {
 			const newData: RateDataType = {};
 			years.forEach((yr) => {
-				if (staticData[yr] && (staticData[yr].i === null || parseInt(yr) >= 2568)) {
-					newData[yr] = prev[yr] !== undefined ? prev[yr] : 1.03;
-				} else if (staticData[yr]) {
+				if (staticData[yr]) {
 					newData[yr] = prev[yr] !== undefined ? prev[yr] : (staticData[yr].i as number);
 				}
 			});
@@ -651,11 +654,13 @@ const CAREPensionCalculator: React.FC = () => {
 						<div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
 							<h3 className="text-lg font-medium text-gray-700 mb-2">จำนวนเงินบำนาญที่ปีสิทธิ {endYear}</h3>
 							<p className="text-2xl font-bold text-purple-800">{formatNumber(result.compensatedPension)} บาท</p>
-							<p className="text-sm text-gray-600">*ก่อนชดเชยจะได้ {formatNumber(result.pensionAmount)} บาท (ชดเชย {conpensate[endYear]}%)</p>
+							<p className="text-sm text-gray-600">*ก่อนชดเชยจะได้ {formatNumber(result.oldPensionAmount)} บาท (ชดเชย {conpensate[endYear]}%)</p>
 						</div>
 					</div>
-					* ระบบคำนวณค่าบำนาญจริงจะดำเนินการคิดคะแนน Pension Point เป็นรายเดือน 
-					แอปพลิเคชันนี้จัดทำเป็นการคำนวณรายปีเพื่อความสะดวกในการใช้งาน และเป็นการประมาณการเบื้องต้นเท่านั้น
+					* ระบบคำนวณบำนาญจริงจะคิด คะแนน Pension Point เป็นรายเดือน
+แอปนี้ทำการคำนวณ เป็นรายปี เพื่อให้ใช้ง่าย และใช้เป็นเพียง การประมาณการเบื้องต้น เท่านั้น
+
+ในการคำนวณ แอปจะสมมติว่า 1. ค่าจ้างเฉลี่ย ม.33 ในอนาคต จะเพิ่มขึ้นปีละ 4% จากค่าจ้างปัจจุบัน 2. เพดานค่าจ้าง จะเริ่มเพิ่มขึ้นปีละ 4% ตั้งแต่ปี 2577
 					<button
 						className="text-blue-600 hover:text-blue-800 font-medium mb-2 flex items-center"
 						onClick={() => setShowDetails(!showDetails)}
