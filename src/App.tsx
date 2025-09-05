@@ -654,7 +654,7 @@ const CAREPensionCalculator: React.FC = () => {
 						<div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
 							<h3 className="text-lg font-medium text-gray-700 mb-2">จำนวนเงินบำนาญที่ปีสิทธิ {endYear}</h3>
 							<p className="text-2xl font-bold text-purple-800">{formatNumber(result.compensatedPension)} บาท</p>
-							<p className="text-sm text-gray-600">*ก่อนชดเชยจะได้ {formatNumber(result.oldPensionAmount)} บาท (ชดเชย {conpensate[endYear]}%)</p>
+							<p className="text-sm text-gray-600">*สูตรเก่าจะได้ {formatNumber(result.oldPensionAmount)} บาท (ชดเชย {conpensate[endYear]}%)</p>
 						</div>
 					</div>
 					* ระบบคำนวณบำนาญจริงจะคิด คะแนน Pension Point เป็นรายเดือน
