@@ -181,6 +181,7 @@ const calculateOldFormula = (
 
 function calculateSystemFAE(
 	targetYear: number,
+	month33Data: MonthDataType,
 	windowLength = 5
 ) {
 
@@ -209,9 +210,14 @@ function calculateSystemFAE(
 		if (entry.i == null){
 			throw new Error(`กรุณากรอกค่า i สำหรับปี ${y}`);
 		}
-		sum += entry.i
-		sumMax += entry.M
-		count++
+		count += month33Data[y];
+		let mul = month33Data[y];
+		if (count > 60) {
+			mul = count- 60;
+			count = 60;
+		}
+		sum += entry.i * mul;
+		sumMax += entry.M * mul;
 	}
 
 	const avg = count > 0 ? sum / count : 0
@@ -303,9 +309,12 @@ const calculateCARE = (
 
 	const { avg:avgPP,cumMonth: cumMonth } = weightedAverageByYear(years,  pp, month33Data);
 
+
+
 	const oldFinalCombinedAmount = calculateOldFormula(startYear, endYear, moneyData, month33Data);
-	const {avg: systemFAE, max: maxCARE} = calculateSystemFAE(endYear);
+	const {avg: systemFAE, max: maxCARE} = calculateSystemFAE(endYear, month33Data);
 	const calculatedCARE = avgPP*systemFAE
+	console.log(avgPP, systemFAE)
 	const CARE = Math.min(calculatedCARE, maxCARE);
 
 	const totalMonths = cumMonth[years[years.length - 1]];
@@ -362,7 +371,165 @@ const CAREPensionCalculator: React.FC = () => {
 	const [isInitialized, setIsInitialized] = useState<boolean>(false);
 	const [showDetails, setShowDetails] = useState<boolean>(false);
 
+	function calculateAverageMoneyForYear(
+		yr: string,
+		startingSalary: number,
+		monthlyIncreaseRate: number = 0.003,
+		monthNumber: number = 12,
+		): number {
+		let totalSalary = 0;
+		let currentSalary = startingSalary;
+		
+		// Calculate salary for each of the 12 months
+		for (let month = 0; month < monthNumber; month++) {
+			
+			const addSalary = staticData[yr].M > currentSalary ? currentSalary : staticData[yr].M;
+			totalSalary += addSalary ;
+			currentSalary = currentSalary * (1 + monthlyIncreaseRate);
+		}
+		
+		// Return average
+		return totalSalary / monthNumber;
+	}
 
+	const r = 1.003;
+	const applyTemplate = (templateNumber: number): void => {
+		setError(null);
+		
+		switch(templateNumber) {
+			case 1: // ตัวอย่างที่ 1 – ผู้รับบำนาญอยู่ และได้ปรับเพิ่ม
+				setStartYear(2541);
+				setEndYear(2568);
+				{
+					const years = getYearArray(2541, 2568);
+					const newMoneyData: MoneyDataType = {};
+					const newMonthData: MonthDataType = {};
+					let salary = 5000;
+					years.forEach((yr) => {
+						const yearNum = parseInt(yr);
+						if (yearNum == 2541) {
+							newMoneyData[yr] = salary;
+							newMonthData[yr] = 1;
+							salary = salary * (1 + 0.003);
+						}
+						else if (yearNum <= 2563) {
+							newMoneyData[yr] = calculateAverageMoneyForYear(yr, salary, 0.003, 12);
+							newMonthData[yr] = 12;
+							salary = salary * (r**12);
+						} else {
+							newMoneyData[yr] = 4800;
+							newMonthData[yr] = 12;
+						}
+						newMonthData[2568] = 8
+					});
+					setMoneyData(newMoneyData);
+					setMonth33Data(newMonthData);
+				}
+				break;
+
+			case 2: // ตัวอย่างที่ 2 - ผู้รับบำนาญอยู่ และได้เท่าเดิม
+				setStartYear(2541);
+				setEndYear(2566);
+				{
+					const years = getYearArray(2541, 2566);
+					const newMoneyData: MoneyDataType = {};
+					const newMonthData: MonthDataType = {};
+					let salary = 4000;
+					years.forEach((yr) => {
+						const yearNum = parseInt(yr);
+						if (yearNum == 2541) {
+							newMoneyData[yr] = salary;
+							newMonthData[yr] = 1;
+							salary = salary * (1 + 0.003);
+						}
+						else if (yearNum <= 2561) {
+							newMoneyData[yr] = calculateAverageMoneyForYear(yr, salary, 0.003, 12);
+							newMonthData[yr] = 12;
+							salary = salary * (r**12);
+						} else if (yearNum <= 2566) {
+							newMoneyData[yr] = 15000;
+							newMonthData[yr] = 12;
+						}
+					});
+					setMoneyData(newMoneyData);
+					setMonth33Data(newMonthData);
+				}
+				break;
+
+			case 3: // ตัวอย่างที่ 3 – ผู้เกิดสิทธิในช่วงเปลี่ยนผ่าน และสูตร CARE จ่ายสูงขึ้น
+				setStartYear(2541);
+				setEndYear(2569);
+				{
+					const years = getYearArray(2541, 2569);
+					const newMoneyData: MoneyDataType = {};
+					const newMonthData: MonthDataType = {};
+					years.forEach((yr) => {
+						newMoneyData[yr] = 15000;
+						newMonthData[yr] = 12;
+					});
+					newMonthData[2541] = 1;
+					newMonthData[2569] = 7;
+					newMoneyData[2569]  = 17500;
+					setMoneyData(newMoneyData);
+					setMonth33Data(newMonthData);
+				}
+				break;
+
+			case 4: // ตัวอย่างที่ 4 – ผู้เกิดสิทธิในช่วงเปลี่ยนผ่าน และได้รับการชดเชย
+				setStartYear(2541);
+				setEndYear(2570);
+				{
+					const years = getYearArray(2541, 2570);
+					const newMoneyData: MoneyDataType = {};
+					const newMonthData: MonthDataType = {};
+					let salary = 6500;
+					years.forEach((yr) => {
+						console.log(yr, salary)
+						if (yr === '2541') {
+							newMoneyData[yr] = salary;
+							newMonthData[yr] = 1;
+							salary = salary * (1 + 0.003);
+						}else if (yr === '2570') {
+							newMoneyData[yr] = calculateAverageMoneyForYear(yr, salary, 0.003, 11);
+							newMonthData[yr] = 11;
+							salary = salary * (r**11);
+						}
+						else{
+							newMoneyData[yr] =  calculateAverageMoneyForYear(yr, salary);
+							newMonthData[yr] = 12;
+							salary = salary * (r**12);
+						}
+					});
+					setMoneyData(newMoneyData);
+					setMonth33Data(newMonthData);
+				}
+				break;
+
+			case 5: // ตัวอย่างที่ 5 – ผู้เกิดสิทธิหลังช่วงเปลี่ยนผ่าน
+				setStartYear(2542);
+				setEndYear(2574);
+				{
+					const years = getYearArray(2542, 2574);
+					const newMoneyData: MoneyDataType = {};
+					const newMonthData: MonthDataType = {};
+					let salary = 6500;
+					years.forEach((yr) => {
+						console.log(yr, salary)
+
+							newMoneyData[yr] =  calculateAverageMoneyForYear(yr, salary);
+							newMonthData[yr] = 12;
+							salary = salary * (r**12);
+
+
+					});
+					newMoneyData[2574] = 20000
+					newMonthData[2574] = 1
+					setMoneyData(newMoneyData);
+					setMonth33Data(newMonthData);
+				}
+				break;
+		}
+	};
 
 	const handleMonth33Change = (yr: string, value: string): void => {
 		const m33Value = parseInt(value, 10) || 0;
@@ -540,6 +707,39 @@ const CAREPensionCalculator: React.FC = () => {
 				</div>
 			</div>
 
+			<div className="flex gap-2 mb-4">
+  <button
+    onClick={() => applyTemplate(1)}
+    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+  >
+    ผู้รับบำนาญอยู่ และได้ปรับเพิ่ม
+  </button>
+  <button
+    onClick={() => applyTemplate(2)}
+    className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+  >
+    ผู้รับบำนาญอยู่ และได้เท่าเดิม
+  </button>
+  <button
+    onClick={() => applyTemplate(3)}
+    className="px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600"
+  >
+    ผู้เกิดสิทธิในช่วงเปลี่ยนผ่าน และสูตร CARE จ่ายสูงขึ้น
+  </button>
+  <button
+    onClick={() => applyTemplate(4)}
+    className="px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600"
+  >
+    ผู้เกิดสิทธิในช่วงเปลี่ยนผ่าน และได้รับการชดเชย
+  </button>
+  <button
+    onClick={() => applyTemplate(5)}
+    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+  >
+    ผู้เกิดสิทธิหลังช่วงเปลี่ยนผ่าน
+  </button>
+</div>
+
 			<div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
 				<h2 className="text-xl font-semibold mb-3">กรอกข้อมูลประจำปี</h2>
 				<div className="overflow-x-auto">
@@ -654,7 +854,7 @@ const CAREPensionCalculator: React.FC = () => {
 						<div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
 							<h3 className="text-lg font-medium text-gray-700 mb-2">จำนวนเงินบำนาญที่ปีสิทธิ {endYear}</h3>
 							<p className="text-2xl font-bold text-purple-800">{formatNumber(result.compensatedPension)} บาท</p>
-							<p className="text-sm text-gray-600">*ก่อนชดเชยจะได้ {formatNumber(result.oldPensionAmount)} บาท (ชดเชย {conpensate[endYear]}%)</p>
+							<p className="text-sm text-gray-600">*สูตรเก่าจะได้ {formatNumber(result.oldPensionAmount)} บาท (ชดเชย {conpensate[endYear]}%)</p>
 						</div>
 					</div>
 					* ระบบคำนวณบำนาญจริงจะคิด คะแนน Pension Point เป็นรายเดือน
