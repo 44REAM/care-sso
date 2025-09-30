@@ -318,15 +318,19 @@ const calculateCARE = (
 	const CARE = Math.min(calculatedCARE, maxCARE);
 
 	const totalMonths = cumMonth[years[years.length - 1]];
-
+	let oldPensionPercentage;
 	let pensionPercentage;
 	if (totalMonths <= 180) {
 		pensionPercentage = 0.20;
+		oldPensionPercentage = 0.20;
+
 	} else {
 		pensionPercentage = 0.20 + 0.00125 * (totalMonths - 180);
+		oldPensionPercentage = 0.20 + 0.00125 * (Math.floor(totalMonths/12) *12 - 180);
 	}
+
 	const pensionAmount = CARE*pensionPercentage
-	const oldPensionAmount = pensionPercentage * oldFinalCombinedAmount;
+	const oldPensionAmount = oldPensionPercentage * oldFinalCombinedAmount;
 
 	const compensatedPension = pensionAmount + Math.max(oldPensionAmount - pensionAmount, 0) * conpensate[years[years.length - 1]] / 100
 	const systemAvg = years.reduce(
@@ -370,6 +374,7 @@ const CAREPensionCalculator: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [isInitialized, setIsInitialized] = useState<boolean>(false);
 	const [showDetails, setShowDetails] = useState<boolean>(false);
+	const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
 
 	function calculateAverageMoneyForYear(
 		yr: string,
@@ -468,7 +473,7 @@ const CAREPensionCalculator: React.FC = () => {
 						newMonthData[yr] = 12;
 					});
 					newMonthData[2541] = 1;
-					newMonthData[2569] = 7;
+					newMonthData[2569] = 6;
 					newMoneyData[2569]  = 17500;
 					setMoneyData(newMoneyData);
 					setMonth33Data(newMonthData);
@@ -706,38 +711,101 @@ const CAREPensionCalculator: React.FC = () => {
 					</label>
 				</div>
 			</div>
-
-			<div className="flex gap-2 mb-4">
-  <button
-    onClick={() => applyTemplate(1)}
-    className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+<div className="mb-4">
+  <select
+    onChange={(e) => {
+      const value = Number(e.target.value);
+      setSelectedTemplate(value);
+      applyTemplate(value);
+    }}
+    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+    value={selectedTemplate || ""}
   >
-    ผู้รับบำนาญอยู่ และได้ปรับเพิ่ม
-  </button>
-  <button
-    onClick={() => applyTemplate(2)}
-    className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-  >
-    ผู้รับบำนาญอยู่ และได้เท่าเดิม
-  </button>
-  <button
-    onClick={() => applyTemplate(3)}
-    className="px-3 py-1 bg-purple-500 text-white rounded hover:bg-purple-600"
-  >
-    ผู้เกิดสิทธิในช่วงเปลี่ยนผ่าน และสูตร CARE จ่ายสูงขึ้น
-  </button>
-  <button
-    onClick={() => applyTemplate(4)}
-    className="px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600"
-  >
-    ผู้เกิดสิทธิในช่วงเปลี่ยนผ่าน และได้รับการชดเชย
-  </button>
-  <button
-    onClick={() => applyTemplate(5)}
-    className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-  >
-    ผู้เกิดสิทธิหลังช่วงเปลี่ยนผ่าน
-  </button>
+    <option value="" disabled>
+      เลือกเทมเพลต
+    </option>
+    <option value="1">ผู้รับบำนาญอยู่ และได้ปรับเพิ่ม</option>
+    <option value="2">ผู้รับบำนาญอยู่ และได้เท่าเดิม</option>
+    <option value="3">ผู้เกิดสิทธิในช่วงเปลี่ยนผ่าน และสูตร CARE จ่ายสูงขึ้น</option>
+    <option value="4">ผู้เกิดสิทธิในช่วงเปลี่ยนผ่าน และได้รับการชดเชย</option>
+    <option value="5">ผู้เกิดสิทธิหลังช่วงเปลี่ยนผ่าน</option>
+  </select>
+  
+  {selectedTemplate && (
+    <div className="mt-3 p-4 bg-blue-50 border border-blue-200 rounded text-left">
+      {selectedTemplate === 1 && (
+        <div className="text-left">
+          <p className="text-sm text-gray-700 leading-relaxed" style={{textAlign: 'left'}}>
+            <strong>ประวัติผู้ประกันตน:</strong> ผู้ประกันมาตรา 33 ส่งเงินสมทบต่อเนื่องตั้งแต่ ธันวาคม 2541 ค่าจ้างเริ่มต้น 5,000 บาท 
+            และปรับเพิ่มเดือนละ 0.3% จนถึงธันวาคม 2563 หลังจากนั้นเปลี่ยนมาส่งมาตรา 39 จนเดือนสุดท้ายที่ส่งคือเดือนสิงหาคม 2568
+            รวมส่งเงินสมทบ 321 งวด รับบำนาญอยู่เดือนละ 1,958 บาท
+            <br />
+            <strong>แนวทางการคำนวณ:</strong> เป็นผู้ที่รับบำนาญอยู่ จึงต้องคำนวณบำนาญสูตร CARE เปรียบเทียบให้
+			<br />
+			<strong>บำนาญสูตรใหม่ CARE:</strong> อัตราบำนาญ 37.625% ฐานค่าจ้าง 9,565 บาท ได้บำนาญเดือนละ 3,599 บาท
+			<br />
+			<strong>บำนาญที่ได้รับ:</strong> ปรับเพิ่มบำนาญตั้งแต่เดือนถัดไป เป็นเดือนละ 3,599 บาท
+          </p>
+        </div>
+      )}
+      {selectedTemplate === 2 && (
+        <div className="text-left">
+          <p className="text-sm text-gray-700 leading-relaxed" style={{textAlign: 'left'}}>
+            <strong>ประวัติผู้ประกันตน:</strong> ผู้ประกันมาตรา 33 ส่งเงินสมทบต่อเนื่องตั้งแต่ ธันวาคม 2541 ค่าจ้างเริ่มต้น 4,000 บาท และปรับเพิ่มเดือนละ 0.3% จนถึงธันวาคม 2561 ค่าจ้าง 8,209 บาท หลังจากนั้นตั้งแต่มกราคม 2562 - ธันวาคม 2566 ค่าจ้างเพิ่มเป็น 15,000 บาทในช่วง 60 เดือนสุดท้าย ส่งเงินสมทบรวม 301 งวด รับบำนาญอยู่เดือนละ 5,259 บาท
+            <br />
+            <strong>แนวทางการคำนวณ:</strong> เป็นผู้ที่รับบำนาญอยู่ จึงต้องคำนวณบำนาญสูตร CARE เปรียบเทียบให้
+			<br />
+			<strong>บำนาญสูตรใหม่ CARE:</strong> อัตราบำนาญ 35.125% ฐานค่าจ้าง 9,548 บาท ได้บำนาญเดือนละ 5,269 บาท
+			<br />
+			<strong>บำนาญที่ได้รับ:</strong> เนื่องจากเป็นผู้รับบำนาญอยู่ จึงจ่ายบำนาญตามเดิมที่ เดือนละ 5,269 บาท
+          </p>
+        </div>
+      )}
+      {selectedTemplate === 3 && (
+        <div className="text-left">
+          <p className="text-sm text-gray-700 leading-relaxed" style={{textAlign: 'left'}}>
+            <strong>ประวัติผู้ประกันตน:</strong> ผู้ประกันมาตรา 33 ส่งเงินสมทบต่อเนื่องตั้งแต่ ธันวาคม 2541 ค่าจ้างสมทบ 15,000 บาททุกเดือน ถึงมิถุนายน 2569 รวมส่งเงินสมทบ 331 งวด
+            <br />
+            <strong>แนวทางการคำนวณ:</strong> เป็นผู้ที่จะรับบำนาญในช่วงเปลี่ยนผ่าน ต้องคำนวณบำนาญทั้งสูตร CARE และสูตรเก่าเทียบกัน
+			<br />
+			<strong>บำนาญสูตรเดิม:</strong> อัตราบำนาญ 38% ฐานค่าจ้าง 15,250 บาท ได้บำนาญเดือนละ 5,795 บาท
+			<br />
+			<strong>บำนาญสูตรใหม่ CARE:</strong> อัตราบำนาญ 38.875% ฐานค่าจ้าง 15,278 บาท ได้บำนาญเดือนละ 5,939 บาท
+			<br />
+			<strong>บำนาญที่ได้รับ:</strong> สูตรใหม่ได้สูงกว่า จึงได้รับบำนาญเดือนละ 5,939 บาท
+          </p>
+        </div>
+      )}
+      {selectedTemplate === 4 && (
+        <div className="text-left">
+          <p className="text-sm text-gray-700 leading-relaxed" style={{textAlign: 'left'}}>
+            <strong>ประวัติผู้ประกันตน:</strong> ผู้ประกันมาตรา 33 ส่งเงินสมทบต่อเนื่องตั้งแต่ ธันวาคม 2541 ค่าจ้างเริ่มต้น 6,500 บาท และปรับเพิ่มเดือนละ 0.3% โดยจะเกษียณอายุ ธันวาคม 2570 รวมส่งเงินสมทบ 348 งวด
+            <br />
+            <strong>แนวทางการคำนวณ:</strong> เป็นผู้ที่จะรับบำนาญในช่วงเปลี่ยนผ่าน ต้องคำนวณบำนาญทั้งสูตร CARE และสูตรเก่าเทียบกัน
+			<br />
+			<strong>บำนาญสูตรเดิม:</strong> อัตราบำนาญ 41% ฐานค่าจ้าง 15,942 บาท ได้บำนาญเดือนละ 6,536 บาท
+			<br />
+			<strong>บำนาญสูตรใหม่ CARE:</strong> อัตราบำนาญ 41% ฐานค่าจ้าง 14,991 บาท ได้บำนาญเดือนละ 6,146 บาท
+			<br />
+			<strong>บำนาญที่ได้รับ:</strong> ได้รับการชดเชย 80% ของบำนาญที่ลดลง รวมได้บำนาญ 6,146 + 80% x (6,536 - 6,146) = 6,458 บาทต่อเดือน
+          </p>
+        </div>
+      )}
+      {selectedTemplate === 5 && (
+        <div className="text-left">
+          <p className="text-sm text-gray-700 leading-relaxed" style={{textAlign: 'left'}}>
+            <strong>ประวัติผู้ประกันตน:</strong> ผู้ประกันมาตรา 33 ส่งเงินสมทบต่อเนื่องตั้งแต่ มกราคม 2542 ค่าจ้างเริ่มต้น 6,500 บาท และปรับเพิ่มเดือนละ 0.3% โดยจะเกษียณอายุ กุมภาพันธ์ 2574 รวมส่งเงินสมทบ 385 งวด
+            <br />
+            <strong>แนวทางการคำนวณ:</strong> พ้นช่วงเปลี่ยนผ่าน คำนวณบำนาญตามสูตร CARE เพียงวิธีเดียว
+			<br />
+			<strong>บำนาญสูตรใหม่ CARE:</strong> อัตราบำนาญ 45.625% ฐานค่าจ้าง 17,750 บาท ได้บำนาญเดือนละ 8,098 บาท
+			<br />
+			<strong>บำนาญที่ได้รับ:</strong> อัตราบำนาญ 45.625% ฐานค่าจ้าง 17,750 บาท ได้บำนาญเดือนละ 8,098 บาท
+          </p>
+        </div>
+      )}
+    </div>
+  )}
 </div>
 
 			<div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
@@ -852,7 +920,7 @@ const CAREPensionCalculator: React.FC = () => {
 							<p className="text-sm text-gray-600">จำนวนเดือนสะสมทั้งหมด: {result.totalCumMonths[result.years[result.years.length - 1]]}</p>
 						</div>
 						<div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-							<h3 className="text-lg font-medium text-gray-700 mb-2">จำนวนเงินบำนาญที่ปีสิทธิ {endYear}</h3>
+							<h3 className="text-lg font-medium text-gray-700 mb-2">เงินบำนาญในปีที่มีสิทธิ {endYear}</h3>
 							<p className="text-2xl font-bold text-purple-800">{formatNumber(result.compensatedPension)} บาท</p>
 							<p className="text-sm text-gray-600">*สูตรเก่าจะได้ {formatNumber(result.oldPensionAmount)} บาท (ชดเชย {conpensate[endYear]}%)</p>
 						</div>
@@ -861,6 +929,8 @@ const CAREPensionCalculator: React.FC = () => {
 แอปนี้ทำการคำนวณ เป็นรายปี เพื่อให้ใช้ง่าย และใช้เป็นเพียง การประมาณการเบื้องต้น เท่านั้น
 
 ในการคำนวณ แอปจะสมมติว่า 1. ค่าจ้างเฉลี่ย ม.33 ในอนาคต จะเพิ่มขึ้นปีละ 4% จากค่าจ้างปัจจุบัน 2. เพดานค่าจ้าง จะเริ่มเพิ่มขึ้นปีละ 4% ตั้งแต่ปี 2577
+<br/>
+*สูตรเก่าในแอปนี้จะใช้เปอร์เซนต์เงินบำนาญแบบรายเดือน ซึ่งจะทำให้เกิดเงินบำนาญจากสูตรเก่าสูงกว่าที่ควรจะเป็น ซึ่งจะคิดเปอร์เซนต์เงินบำนาญแบบรายปี
 					<button
 						className="text-blue-600 hover:text-blue-800 font-medium mb-2 flex items-center"
 						onClick={() => setShowDetails(!showDetails)}
