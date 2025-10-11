@@ -182,7 +182,7 @@ const calculateOldFormula = (
 function calculateSystemFAE(
 	targetYear: number,
 	month33Data: MonthDataType,
-	windowLength = 5
+	windowLength = 6
 ) {
 
 	// Turn the keys into numbers & sort ascending
@@ -202,26 +202,31 @@ function calculateSystemFAE(
 
 	let sum = 0
 	let sumMax = 0
-	let count = 0
+
+	const end_mul = month33Data[years[start+5]]/12;
+	const start_mul = 1-end_mul;
 
 	for (let i = start; i <= idx; i++) {
 		const y = years[i]
 		const entry = staticData[y]
+
 		if (entry.i == null){
 			throw new Error(`กรุณากรอกค่า i สำหรับปี ${y}`);
 		}
-		count += month33Data[y];
-		let mul = month33Data[y];
-		if (count > 60) {
-			mul = count- 60;
-			count = 60;
+
+		let mul = 1;
+		if (i == start) {
+			mul = start_mul;
+		} else if (i == idx) {
+			mul = end_mul;
 		}
-		sum += entry.i * mul;
-		sumMax += entry.M * mul;
+
+		sum += entry.i *mul;
+		sumMax += entry.M *mul;
 	}
 
-	const avg = count > 0 ? sum / count : 0
-	const max = count > 0 ? sumMax / count : 0
+	const avg =  sum / 5;
+	const max = sumMax / 5;
 
 	return {avg, max}
 }
@@ -330,6 +335,7 @@ const calculateCARE = (
 	}
 
 	const pensionAmount = CARE*pensionPercentage
+	console.log(pensionAmount)
 	const oldPensionAmount = oldPensionPercentage * oldFinalCombinedAmount;
 
 	const compensatedPension = pensionAmount + Math.max(oldPensionAmount - pensionAmount, 0) * conpensate[years[years.length - 1]] / 100
@@ -742,9 +748,9 @@ const CAREPensionCalculator: React.FC = () => {
             <br />
             <strong>แนวทางการคำนวณ:</strong> เป็นผู้ที่รับบำนาญอยู่ จึงต้องคำนวณบำนาญสูตร CARE เปรียบเทียบให้
 			<br />
-			<strong>บำนาญสูตรใหม่ CARE:</strong> อัตราบำนาญ 37.625% ฐานค่าจ้าง 9,565 บาท ได้บำนาญเดือนละ 3,599 บาท
+			<strong>บำนาญสูตรใหม่ CARE:</strong> อัตราบำนาญ 37.625% ฐานค่าจ้าง 9,540 บาท ได้บำนาญเดือนละ 3,589 บาท
 			<br />
-			<strong>บำนาญที่ได้รับ:</strong> ปรับเพิ่มบำนาญตั้งแต่เดือนถัดไป เป็นเดือนละ 3,599 บาท
+			<strong>บำนาญที่ได้รับ:</strong> ปรับเพิ่มบำนาญตั้งแต่เดือนถัดไป เป็นเดือนละ 3,589 บาท
           </p>
         </div>
       )}
@@ -770,9 +776,9 @@ const CAREPensionCalculator: React.FC = () => {
 			<br />
 			<strong>บำนาญสูตรเดิม:</strong> อัตราบำนาญ 38% ฐานค่าจ้าง 15,250 บาท ได้บำนาญเดือนละ 5,795 บาท
 			<br />
-			<strong>บำนาญสูตรใหม่ CARE:</strong> อัตราบำนาญ 38.875% ฐานค่าจ้าง 15,278 บาท ได้บำนาญเดือนละ 5,939 บาท
+			<strong>บำนาญสูตรใหม่ CARE:</strong> อัตราบำนาญ 38.875% ฐานค่าจ้าง 15,250 บาท ได้บำนาญเดือนละ 5,928 บาท
 			<br />
-			<strong>บำนาญที่ได้รับ:</strong> สูตรใหม่ได้สูงกว่า จึงได้รับบำนาญเดือนละ 5,939 บาท
+			<strong>บำนาญที่ได้รับ:</strong> สูตรใหม่ได้สูงกว่า จึงได้รับบำนาญเดือนละ 5,928 บาท
           </p>
         </div>
       )}
@@ -785,9 +791,9 @@ const CAREPensionCalculator: React.FC = () => {
 			<br />
 			<strong>บำนาญสูตรเดิม:</strong> อัตราบำนาญ 41% ฐานค่าจ้าง 15,942 บาท ได้บำนาญเดือนละ 6,536 บาท
 			<br />
-			<strong>บำนาญสูตรใหม่ CARE:</strong> อัตราบำนาญ 41% ฐานค่าจ้าง 14,991 บาท ได้บำนาญเดือนละ 6,146 บาท
+			<strong>บำนาญสูตรใหม่ CARE:</strong> อัตราบำนาญ 41% ฐานค่าจ้าง 14,971 บาท ได้บำนาญเดือนละ 6,138 บาท
 			<br />
-			<strong>บำนาญที่ได้รับ:</strong> ได้รับการชดเชย 80% ของบำนาญที่ลดลง รวมได้บำนาญ 6,146 + 80% x (6,536 - 6,146) = 6,458 บาทต่อเดือน
+			<strong>บำนาญที่ได้รับ:</strong> ได้รับการชดเชย 80% ของบำนาญที่ลดลง รวมได้บำนาญ 6,146 + 80% x (6,536 - 6,138) = 6,457 บาทต่อเดือน
           </p>
         </div>
       )}
@@ -798,9 +804,9 @@ const CAREPensionCalculator: React.FC = () => {
             <br />
             <strong>แนวทางการคำนวณ:</strong> พ้นช่วงเปลี่ยนผ่าน คำนวณบำนาญตามสูตร CARE เพียงวิธีเดียว
 			<br />
-			<strong>บำนาญสูตรใหม่ CARE:</strong> อัตราบำนาญ 45.625% ฐานค่าจ้าง 17,750 บาท ได้บำนาญเดือนละ 8,098 บาท
+			<strong>บำนาญสูตรใหม่ CARE:</strong> อัตราบำนาญ 45.625% ฐานค่าจ้าง 17,386 บาท ได้บำนาญเดือนละ 7,932 บาท
 			<br />
-			<strong>บำนาญที่ได้รับ:</strong> อัตราบำนาญ 45.625% ฐานค่าจ้าง 17,750 บาท ได้บำนาญเดือนละ 8,098 บาท
+			<strong>บำนาญที่ได้รับ:</strong> อัตราบำนาญ 45.625% ฐานค่าจ้าง 17,386 บาท ได้บำนาญเดือนละ 7,932 บาท
           </p>
         </div>
       )}
@@ -908,27 +914,38 @@ const CAREPensionCalculator: React.FC = () => {
 			)}
 			{result && (
 				<div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-						<div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-							<h3 className="text-lg font-medium text-gray-700 mb-2">ฐานเงินบำนาญ</h3>
-							<p className="text-2xl font-bold text-blue-800">{formatNumber(result.finalCombinedAmount)} บาท</p>
-							<p className="text-sm text-gray-600">ค่าเฉลี่ยถ่วงน้ำหนักระหว่าง ม.33 และ ม.39</p>
+					{result.totalCumMonths[result.years[result.years.length - 1]] < 180 ? (
+						<div className="text-center py-8">
+							<p className="text-xl text-red-600 font-semibold">ยังไม่มีสิทธิรับเงินบำนาญ</p>
+							<p className="text-gray-600 mt-2">ต้องมีจำนวนเดือนสะสมอย่างน้อย 180 เดือน</p>
+							<p className="text-gray-600">ปัจจุบันมี: {result.totalCumMonths[result.years[result.years.length - 1]]} เดือน</p>
 						</div>
-						<div className="bg-green-50 p-4 rounded-lg border border-green-200">
-							<h3 className="text-lg font-medium text-gray-700 mb-2">เปอร์เซนต์เงินบำนาญ</h3>
-							<p className="text-2xl font-bold text-purple-800">{(result.pensionPercentage * 100).toFixed(2)}%</p>
-							<p className="text-sm text-gray-600">จำนวนเดือนสะสมทั้งหมด: {result.totalCumMonths[result.years[result.years.length - 1]]}</p>
-						</div>
-						<div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-							<h3 className="text-lg font-medium text-gray-700 mb-2">เงินบำนาญในปีที่มีสิทธิ {endYear}</h3>
-							<p className="text-2xl font-bold text-purple-800">{formatNumber(result.compensatedPension)} บาท</p>
-							<p className="text-sm text-gray-600">*สูตรเก่าจะได้ {formatNumber(result.oldPensionAmount)} บาท (ชดเชย {conpensate[endYear]}%)</p>
-						</div>
-					</div>
-					* ระบบคำนวณบำนาญจริงจะคิด คะแนน Pension Point เป็นรายเดือน
-แอปนี้ทำการคำนวณ เป็นรายปี เพื่อให้ใช้ง่าย และใช้เป็นเพียง การประมาณการเบื้องต้น เท่านั้น
+					) : (
+						<>
+							<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+								<div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+									<h3 className="text-lg font-medium text-gray-700 mb-2">ฐานเงินบำนาญ</h3>
+									<p className="text-2xl font-bold text-blue-800">{formatNumber(result.finalCombinedAmount)} บาท</p>
+									<p className="text-sm text-gray-600">ค่าเฉลี่ยถ่วงน้ำหนักระหว่าง ม.33 และ ม.39</p>
+								</div>
+								<div className="bg-green-50 p-4 rounded-lg border border-green-200">
+									<h3 className="text-lg font-medium text-gray-700 mb-2">เปอร์เซนต์เงินบำนาญ</h3>
+									<p className="text-2xl font-bold text-purple-800">{(result.pensionPercentage * 100).toFixed(2)}%</p>
+									<p className="text-sm text-gray-600">จำนวนเดือนสะสมทั้งหมด: {result.totalCumMonths[result.years[result.years.length - 1]]}</p>
+								</div>
+								<div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+									<h3 className="text-lg font-medium text-gray-700 mb-2">เงินบำนาญในปีที่มีสิทธิ {endYear}</h3>
+									<p className="text-2xl font-bold text-purple-800">{formatNumber(result.compensatedPension)} บาท</p>
+									<p className="text-sm text-gray-600">*สูตรเก่าจะได้ {formatNumber(result.oldPensionAmount)} บาท (ชดเชย {conpensate[endYear]}%)</p>
+								</div>
+							</div>
+							* ระบบคำนวณบำนาญจริงจะคิด คะแนน Pension Point เป็นรายเดือน
+							แอปนี้ทำการคำนวณ เป็นรายปี เพื่อให้ใช้ง่าย และใช้เป็นเพียง การประมาณการเบื้องต้น เท่านั้น
 
-ในการคำนวณ แอปจะสมมติว่า 1. ค่าจ้างเฉลี่ย ม.33 ในอนาคต จะเพิ่มขึ้นปีละ 4% จากค่าจ้างปัจจุบัน 2. เพดานค่าจ้าง จะเริ่มเพิ่มขึ้นปีละ 4% ตั้งแต่ปี 2577
+							ในการคำนวณ แอปจะสมมติว่า 1. ค่าจ้างเฉลี่ย ม.33 ในอนาคต จะเพิ่มขึ้นปีละ 4% จากค่าจ้างปัจจุบัน 2. เพดานค่าจ้าง จะเริ่มเพิ่มขึ้นปีละ 4% ตั้งแต่ปี 2577
+						</>
+					)}
+					
 					<button
 						className="text-blue-600 hover:text-blue-800 font-medium mb-2 flex items-center"
 						onClick={() => setShowDetails(!showDetails)}
@@ -960,9 +977,6 @@ const CAREPensionCalculator: React.FC = () => {
 							</table>
 						</div>
 					)}
-					{/* <a href="/CARE_SSO_v2.0.pdf" download="CARE_SSO_v2.0.pdf" className="download-button">
-						อ่านรายละเอียดเพิ่มเติม
-					</a> */}
 				</div>
 			)}
 
