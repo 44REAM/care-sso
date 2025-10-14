@@ -525,16 +525,44 @@ const CAREPensionCalculator: React.FC = () => {
 					const newMonthData: MonthDataType = {};
 					let salary = 6500;
 					years.forEach((yr) => {
-						console.log(yr, salary)
 
-							newMoneyData[yr] =  calculateAverageMoneyForYear(yr, salary);
-							newMonthData[yr] = 12;
-							salary = salary * (r**12);
+						newMoneyData[yr] =  calculateAverageMoneyForYear(yr, salary);
+						newMonthData[yr] = 12;
+						salary = salary * (r**12);
 
 
 					});
 					newMoneyData[2574] = 20000
 					newMonthData[2574] = 1
+					setMoneyData(newMoneyData);
+					setMonth33Data(newMonthData);
+				}
+				break;
+			case 6: // ตัวอย่างที่ 5 – ผู้เกิดสิทธิหลังช่วงเปลี่ยนผ่าน
+				setStartYear(2544);
+				setEndYear(2575);
+				{
+					const years = getYearArray(2544, 2575);
+					const newMoneyData: MoneyDataType = {};
+					const newMonthData: MonthDataType = {};
+					let salary = 4800;
+					years.forEach((yr) => {
+
+						if (yr === '2556') {
+							salary = 10000;
+						}
+						newMoneyData[yr] =  calculateAverageMoneyForYear(yr, salary);
+						newMonthData[yr] = 12;
+
+						if (yr > '2568') {
+							newMonthData[yr] = 0;
+							newMoneyData[yr] = 0;
+						}
+						salary = salary * (r**12);
+
+
+					});
+
 					setMoneyData(newMoneyData);
 					setMonth33Data(newMonthData);
 				}
@@ -735,6 +763,7 @@ const CAREPensionCalculator: React.FC = () => {
     <option value="3">ผู้เกิดสิทธิในช่วงเปลี่ยนผ่าน และสูตร CARE จ่ายสูงขึ้น</option>
     <option value="4">ผู้เกิดสิทธิในช่วงเปลี่ยนผ่าน และได้รับการชดเชย</option>
     <option value="5">ผู้เกิดสิทธิหลังช่วงเปลี่ยนผ่าน</option>
+	<option value="6">ผู้หยุดส่งประกันสังคมก่อนกำหนดและรับบำนาญหลังช่วงเปลี่ยนผ่าน</option>
   </select>
   
   {selectedTemplate && (
@@ -807,6 +836,21 @@ const CAREPensionCalculator: React.FC = () => {
 			<strong>บำนาญสูตรใหม่ CARE:</strong> อัตราบำนาญ 45.625% ฐานค่าจ้าง 17,386 บาท ได้บำนาญเดือนละ 7,932 บาท
 			<br />
 			<strong>บำนาญที่ได้รับ:</strong> อัตราบำนาญ 45.625% ฐานค่าจ้าง 17,386 บาท ได้บำนาญเดือนละ 7,932 บาท
+          </p>
+        </div>
+      )}
+	  {selectedTemplate === 6 && (
+        <div className="text-left">
+          <p className="text-sm text-gray-700 leading-relaxed" style={{textAlign: 'left'}}>
+            <strong>ประวัติผู้ประกันตน:</strong> ผู้ประกันมาตรา 33 ส่งเงินสมทบต่อเนื่องตั้งแต่ มกราคม 2544 ค่าจ้างเริ่มต้น 4,800 บาท และปรับเพิ่มเดือนละ 0.3% จากนั้นปี 2556 ได้ปรับค้าจ้างเป็น 10,000 บาท และปรับเพิ่มเดือนละ 0.3% จนถึงปัจจุบัน 2568 ได้ค่าจ้าง 15,000 บาท แล้วหยุดส่งประกันสังคม
+            <br />
+			โดยจะเกษียณอายุ 2575 รวมส่งเงินสมทบ 300 งวด
+            <br />
+            <strong>แนวทางการคำนวณ:</strong> พ้นช่วงเปลี่ยนผ่าน คำนวณบำนาญตามสูตร CARE เพียงวิธีเดียว
+			<br />
+			<strong>บำนาญสูตรใหม่ CARE:</strong> อัตราบำนาญ 35% ฐานค่าจ้าง 14,819 บาท ได้บำนาญเดือนละ 5,187 บาท
+			<br />
+			<strong>บำนาญที่ได้รับ:</strong> อัตราบำนาญ 35% ฐานค่าจ้าง 14,819 บาท ได้บำนาญเดือนละ 5,187 บาท
           </p>
         </div>
       )}
