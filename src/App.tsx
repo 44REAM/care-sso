@@ -567,6 +567,27 @@ const CAREPensionCalculator: React.FC = () => {
 					setMonth33Data(newMonthData);
 				}
 				break;
+			case 7: // ตัวอย่างที่ 5 – ผู้เกิดสิทธิหลังช่วงเปลี่ยนผ่าน
+				setStartYear(2542);
+				setEndYear(2574);
+				{
+					const years = getYearArray(2542, 2574);
+					const newMoneyData: MoneyDataType = {};
+					const newMonthData: MonthDataType = {};
+					let salary = 6500;
+					years.forEach((yr) => {
+
+						newMoneyData[yr] =  calculateAverageMoneyForYear(yr, salary);
+						newMonthData[yr] = 12;
+						salary = salary * (1.002**12);
+
+
+					});
+					newMonthData[2574] = 1
+					setMoneyData(newMoneyData);
+					setMonth33Data(newMonthData);
+				}
+				break;
 		}
 	};
 
@@ -762,8 +783,9 @@ const CAREPensionCalculator: React.FC = () => {
     <option value="2">ผู้รับบำนาญอยู่ และได้เท่าเดิม</option>
     <option value="3">ผู้เกิดสิทธิในช่วงเปลี่ยนผ่าน และสูตร CARE จ่ายสูงขึ้น</option>
     <option value="4">ผู้เกิดสิทธิในช่วงเปลี่ยนผ่าน และได้รับการชดเชย</option>
-    <option value="5">ผู้เกิดสิทธิหลังช่วงเปลี่ยนผ่าน</option>
-	<option value="6">ผู้หยุดส่งประกันสังคมก่อนกำหนดและรับบำนาญหลังช่วงเปลี่ยนผ่าน</option>
+    <option value="5">ผู้เกิดสิทธิหลังช่วงเปลี่ยนผ่าน เงินเดือนเพิ่มเดือนละ 0.3%</option>
+	<option value="6">ผู้เกิดสิทธิหลังช่วงเปลี่ยนผ่าน แต่หยุดส่งประกันสังคมก่อนกำหนด</option>
+	<option value="7">ผู้เกิดสิทธิหลังช่วงเปลี่ยนผ่าน เงินเดือนเพิ่มเดือนละ 0.2%</option>
   </select>
   
   {selectedTemplate && (
@@ -851,6 +873,19 @@ const CAREPensionCalculator: React.FC = () => {
 			<strong>บำนาญสูตรใหม่ CARE:</strong> อัตราบำนาญ 35% ฐานค่าจ้าง 14,819 บาท ได้บำนาญเดือนละ 5,187 บาท
 			<br />
 			<strong>บำนาญที่ได้รับ:</strong> อัตราบำนาญ 35% ฐานค่าจ้าง 14,819 บาท ได้บำนาญเดือนละ 5,187 บาท
+          </p>
+        </div>
+      )}
+	  {selectedTemplate === 7 && (
+        <div className="text-left">
+          <p className="text-sm text-gray-700 leading-relaxed" style={{textAlign: 'left'}}>
+            <strong>ประวัติผู้ประกันตน:</strong> ผู้ประกันมาตรา 33 ส่งเงินสมทบต่อเนื่องตั้งแต่ มกราคม 2542 ค่าจ้างเริ่มต้น 6,500 บาท และปรับเพิ่มเดือนละ 0.2% โดยจะเกษียณอายุ กุมภาพันธ์ 2574 รวมส่งเงินสมทบ 385 งวด
+            <br />
+            <strong>แนวทางการคำนวณ:</strong> พ้นช่วงเปลี่ยนผ่าน คำนวณบำนาญตามสูตร CARE เพียงวิธีเดียว
+			<br />
+			<strong>บำนาญสูตรใหม่ CARE:</strong> อัตราบำนาญ 45.625% ฐานค่าจ้าง 14,622 บาท ได้บำนาญเดือนละ 6,671 บาท
+			<br />
+			<strong>บำนาญที่ได้รับ:</strong> อัตราบำนาญ 45.625% ฐานค่าจ้าง 14,622 บาท ได้บำนาญเดือนละ 6,671 บาท
           </p>
         </div>
       )}
