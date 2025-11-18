@@ -1,8 +1,8 @@
-# React + TypeScript + Vite
+# Pension Point CARE
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## เอกสารข้อมูล
 
-While this project uses React, Vite supports many popular JS frameworks. [See all the supported frameworks](https://vitejs.dev/guide/#scaffolding-your-first-vite-project).
+https://github.com/44REAM/care-sso/blob/main/assets/CARE_SSO.pdf
 
 ## Deploy Your Own
 
