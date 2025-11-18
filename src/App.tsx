@@ -734,8 +734,12 @@ const CAREPensionCalculator: React.FC = () => {
 	}
 
 	return (
+		
 		<div className="bg-gray-50 p-6 rounded-lg shadow-md max-w-5xl mx-auto">
+			
 			<h1 className="text-2xl font-bold text-center mb-6 text-blue-700">การคำนวณค่าบำนาญสูตร CARE</h1>
+
+			
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
 				<div>
@@ -787,7 +791,10 @@ const CAREPensionCalculator: React.FC = () => {
 					</label>
 				</div>
 			</div>
+			
 <div className="mb-4">
+	เลือกเทมเพลตตัวอย่าง ถ้ารู้เงินเดือนตัวเองสามารถกรอกได้เลย ไม่ต้องเลือกเทมเพลต
+
   <select
     onChange={(e) => {
       const value = Number(e.target.value);
@@ -798,7 +805,7 @@ const CAREPensionCalculator: React.FC = () => {
     value={selectedTemplate || ""}
   >
     <option value="" disabled>
-      เลือกเทมเพลต
+      เลือกเทมเพลตตัวอย่าง
     </option>
     <option value="1">ผู้รับบำนาญอยู่ และได้ปรับเพิ่ม</option>
     <option value="2">ผู้รับบำนาญอยู่ และได้เท่าเดิม</option>
@@ -929,7 +936,8 @@ const CAREPensionCalculator: React.FC = () => {
 </div>
 
 			<div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
-				<h2 className="text-xl font-semibold mb-3">กรอกข้อมูลประจำปี</h2>
+				<h2 className="text-xl font-semibold mb-3">กรอกข้อมูลค่าจ้างเฉลี่ยในแต่ละปี</h2>
+
 				<div className="overflow-x-auto">
 					<table className="w-full border-collapse border border-gray-300 text-sm">
 						<thead className="bg-gray-100">
@@ -1020,12 +1028,30 @@ const CAREPensionCalculator: React.FC = () => {
 			>
 				คำนวณ
 			</button>
+			<div className="p-4 flex justify-end">
+    {/* PDF Download Button (Static Link as requested) */}
+    <a
+        href="assets/CARE_SSO.pdf"
+        download="CARE_SSO.pdf"
+        target="_blank"
+        rel="noopener noreferrer"
+
+    >
+        <button
+            className="download-button"
+        >
+            DOWNLOAD เอกสารประกอบ
+        </button>
+    </a>
+</div>
+
 
 			{error && (
 				<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
 					<strong>Error:</strong> {error}
 				</div>
 			)}
+
 			{result && (
 				<div className="mt-6 bg-white p-4 rounded-lg border border-gray-200">
 					{result.totalCumMonths[result.years[result.years.length - 1]] < 180 ? (

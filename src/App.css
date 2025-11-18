@@ -279,7 +279,7 @@ td input {
 }
 
 .download-button {
-  background-color: #FF9800; /* สีส้ม */
+  background-color: #1E90FF; /* สีส้ม */
   color: white; /* สีตัวอักษรขาว */
   padding: 10px 20px; /* ระยะห่างภายในปุ่ม */
   border: none; /* ไม่มีเส้นขอบ */
@@ -291,5 +291,5 @@ td input {
 }
 
 .download-button:hover {
-  background-color: #FFB74D; /* สีส้มอ่อนลงเมื่อ hover */
+  background-color: #4169E1; /* สีส้มอ่อนลงเมื่อ hover */
 }
